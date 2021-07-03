@@ -2,7 +2,7 @@
 
 Author: __*yufanana*__
 
-This documentation was produced from the ROS for Beginners: Basics, Motion and OpenCV course by Anis Koubaa available on udemy.com. :)
+This documentation was produced from the ROS for Beginners: Basics, Motion and OpenCV course by Anis Koubaa available on udemy.com.
 </br>
 ____
 
