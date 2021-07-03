@@ -8,7 +8,8 @@ ____
 
 ## Section 1: ROS Concepts
 
-There are 3 communication patterns.
+There are 3 communication patterns. <br>
+TCPROS layers are established between the nodes with the help of the master node before communication can begin.
 
 ### 1.1 Publisher/Subscriber
 Publisher ->  (topic) -> Subscriber </br>
@@ -38,11 +39,9 @@ Each node can be a
 - service server/service client
 - action server/action client
 
-__roscore__ is the master node. It has to be started all the time.
+__roscore__ is the master node. It has to be started all the time. ROS is like a network inside a local machine. If the master node crashes, the other nodes may still be able to continue communicating.
 
-ROS is like a network inside a local machine.
-
-Then, start a new terminal window to run other ROS commands.
+Start a new terminal window to run other ROS commands.
 
 `rosrun rqt_graph rqt_graph` displays the ROS computation graph.
 
@@ -125,3 +124,188 @@ __Publish a message on a topic using CMD line__ <br>
 
 
 This robot is only able to move using linear.x (forward, backward) and angular.z (rotate). This is sufficient for 2D motion.
+
+### Write Publisher of ROS Topics
+1. Determine a name for topic.
+2. Determine the type of the messages that the topic will be publish.
+3. Determine the frequency of topic publication (per second).
+4. Create a publisher object with the above parameters.
+5. Keep publishing the topic message at the selected frequency.
+
+Python
+```python
+import rospy
+from std_msgs.msg import String
+# std_msgs.msg is the package
+
+def talker():
+    pub = rospy.Publisher('chatter', String, queue_size=10)
+    # Creates publisher object
+    # 'chatter' is topic, String is topic type, queue_size is like a buffer/queue
+
+    rospy.init_node('talker', anonymous = True)
+    # Initialise rosnode
+    # 'talker' is name of the node, anonymous = True ensures that nodes have unique names/ID
+
+    rate = rospy.Rate(1) # in Hz
+
+    i = 0       # counter
+    while not rospy.is_shutdown():
+        hello_str = "hello world %s" % i
+        rospy.loginfo(hello_str)
+        # Outputs into terminal
+        pub.publish(hello_str)
+        rate.sleep()        # sleep duration(s) = 1/rate
+        i += 1
+```
+
+C++         *Message type is not defined in node instantiation, but in the callback function.*
+```c++
+#include "ros/ros.h"
+#include "std_msgs/String.h"
+#include <sstream>
+
+int main(int argc, char **argv)
+{
+	// Initiate new ROS node named "talker"
+	ros::init(argc, argv, "talker_node");
+
+	// Create a node handle: it is reference assigned to a new node
+	ros::NodeHandle node;
+
+	// Create a publisher with a topic "chatter" that will send a String message
+	ros::Publisher chatter_publisher = node.advertise<std_msgs::String>("chatter", 1000);
+
+	// Rate is a class to define frequency for a loop. Here is 1 message every 2s.
+	ros::Rate loop_rate(0.5);
+
+   int count = 0;
+   while (ros::ok()) { // Keep spinning loop until user presses Ctrl+C
+   
+        // Create a new String ROS message.
+	    // Message definition in this link http://docs.ros.org/api/std_msgs/html/msg/String.html
+	    std_msgs::String msg;
+
+        // Create a string for the data
+	    std::stringstream ss;
+	    ss << "Hello World " << count;
+	    // Assign the string data to ROS message data field
+        msg.data = ss.str();
+
+        // Print message content in the terminal
+        ROS_INFO("[Talker] I published %s\n", msg.data.c_str());
+
+        // Publish message
+        chatter_publisher.publish(msg);
+
+        // Call this function often for ROS to process incoming messages
+        ros::spinOnce(); 
+
+        // Sleep for the rest of the cycle, to enforce the loop rate
+        loop_rate.sleep(); 
+
+        count++;
+   }
+   return 0;
+}
+```
+
+### Write Subscriber to ROS Topics
+1. Identify the name for the topic to listen to.
+2. Identify the type of the messages to be received.
+3. Define a *callback function* that will be executed when a new message is received.
+4. Start listening for the topic messages.
+5. Spin to listen forever (in C++).
+
+Python
+```python
+import rospy
+from std_msgs.msg import String
+
+def chatter_callback(message):
+    rospy.loginto(rospy.get_caller_id() + "I heard %s", message.data)
+    # Outputs into termial
+
+    # print("I heard %s", message.data)
+
+def listener():
+    rospy.init_node('listener', anonymous = True)
+
+    rospy.Subscriber("chatter", String, chatter_callback)
+    # Creates subscriber object
+    # chatter_callback is the callback function
+
+    rospy.spin()
+    # Start listening
+```
+
+C++
+```c++
+#include "ros/ros.h"
+#include "std_msgs/String.h"
+
+// Topic messages callback
+void chatterCallback(const std_msgs::String::ConstPtr& msg)
+{
+    ROS_INFO("[Listener] I heard: [%s]\n", msg->data.c_str());
+}
+
+int main(int argc, char **argv)
+{
+    // Initiate a new ROS node named "listener"
+	ros::init(argc, argv, "listener_node");
+	//create a node handle: it is reference assigned to a new node
+	ros::NodeHandle node;
+
+    // Subscribe to a given topic, in this case "chatter".
+	//chatterCallback: is the name of the callback function that will be executed each time a message is received.
+    ros::Subscriber sub = node.subscribe("chatter", 1000, chatterCallback);
+
+    // Enter a loop, pumping callbacks
+    ros::spin();
+
+    return 0;
+}
+```
+
+### CMakeLists.txt
+File that provides all the information for the C compiler to compile and execute. <br>
+Define all the dependencies and packages used.
+
+```txt
+cmake_minimum_required(VERSION 2.8.3)
+project(ros_essentials_cpp)
+
+## Find catkin macros and libraries
+find_package(catkin REQUIRED COMPONENTS
+    roscpp
+    rospy
+    std_msgs
+)
+
+# talker, creates .exe file called talker_node.exe
+add_executable(talker_node src/topic01_basics/talker_listenenr/talker.cpp)
+target_link_libraries(talker_node ${catkin_LIBRARIES})
+
+# listener, creates .exe file called listener_node.exe
+add_executable(listener_node src/topic01_basics/talker_listenenr/listener.cpp)
+target_link_libraries(listener_node ${catkin_LIBRARIES})
+```
+
+### package.xml
+Used by `catkin_make`
+```xml
+<buildtool_depend>catkin</buildtool_depend>
+
+<build_depend>roscpp</build_depend>
+<build_depend>rospy</build_depend>
+<build_depend>std_msgs</build_depend>
+
+<build_export_depend>roscpp</build_export_depend>
+<build_export_depend>rospy</build_export_depend>
+<build_export_depend>std_msgs</build_export_depend>
+
+<exec_depend>roscpp</exec_depend>
+<exec_depend>rospy</exec_depend>
+<exec_depend>std_msgs</exec_depend>
+```
