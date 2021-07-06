@@ -99,9 +99,18 @@ turtle_teleop_key -> turtlesim_node, where the topic of the messages is */turtle
 `rosrun rqt_graph rqt_graph` displays the ROS computation graph.
 
 ### 3.3 ROS Message
+__Topic__
 `rostopic list` to get a list of *topics* in a ROS computation graph. <br>
+e.g. 
+- /turtle1/cmd_vel
+- /turtle1/color_sensor
+- /turtle1/pose
 
-__Message Type__ <br>
+__Type__ <br>
+e.g.
+- turtlesim/Pose (for /turtle1/pose)
+- geometry_msgs/Twist )for /turtle1/cmd_vel) 
+
 `geometry_msgs/Twist` where
 - `geometry_msgs` is the ROS package where the ROS message is located.
 - `Twist` is the ROS message.
@@ -111,6 +120,15 @@ __Message Type__ <br>
 
 ROS messages have *.msg* file types. <br> <br>
 
+__Content__
+e.g. turtlesim/Pose
+'''
+float32 x
+float32 y
+float32 theta
+float32 linear_velocity
+float32 angular_velocity
+'''
 
 __Publish a message on a topic using CMD line__ <br>
 `rostopic pub -r 10 /turtle1/cmd_vel geometry_msgs/Twist '{linear: {x: 0.1, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}'` where
