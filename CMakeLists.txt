@@ -44,7 +44,7 @@ add_action_files(
 ###################################
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES ros_essentials_cpp
+  LIBRARIES ros_essentials
   CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
   DEPENDS system_lib
 )
@@ -87,11 +87,11 @@ target_link_libraries (turtlesim_clean_node ${catkin_LIBRARIES})
 
 add_executable(add_two_ints_server src/topic01_basics/service/add_two_ints_server.cpp)
 target_link_libraries(add_two_ints_server ${catkin_LIBRARIES})
-add_dependencies(add_two_ints_server ros_essentials_cpp_gencpp)
+add_dependencies(add_two_ints_server ros_essentials_gencpp)
 
 add_executable(add_two_ints_client src/topic01_basics/service/add_two_ints_client.cpp)
 target_link_libraries(add_two_ints_client ${catkin_LIBRARIES})
-add_dependencies(add_two_ints_client ros_essentials_cpp_gencpp)
+add_dependencies(add_two_ints_client ros_essentials_gencpp)
 
 add_executable(scan_subscriber_cpp src/topic04_perception02_laser/scan_subscriber.cpp)
 target_link_libraries(scan_subscriber_cpp ${catkin_LIBRARIES})

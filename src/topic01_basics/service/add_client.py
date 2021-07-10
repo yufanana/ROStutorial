@@ -2,14 +2,16 @@
 
 import sys
 import rospy
-from ros_essentials_cpp.srv import AddTwoInts
+from ros_essentials.srv import AddTwoInts
 from ros_essentials_cpp.srv import AddTwoIntsRequest
 from ros_essentials_cpp.srv import AddTwoIntsResponse
 
 def add_two_ints_client(x, y):
-    rospy.wait_for_service('add_two_ints')
+    rospy.wait_for_service('add_two_ints')	# ensures server is alive
     try:
         add_two_ints = rospy.ServiceProxy('add_two_ints', AddTwoInts)
+        # add_two_ints: service name
+        # AddTwoInts: service type
         resp1 = add_two_ints(x, y)
         return resp1.sum
     except rospy.ServiceException(e):
