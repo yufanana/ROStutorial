@@ -430,3 +430,7 @@ Update dependencies in CMakeLists.txt <br>
 3 header files (.h) will be created in the workspace `devel/include/ros_essentials` for the service.
 
 ### Step 2 Create ROS Service Node
+Refer to source files.
+
+### Step 3 Create ROS Client Node
+Refer to source files.
