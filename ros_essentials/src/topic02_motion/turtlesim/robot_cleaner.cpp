@@ -71,12 +71,12 @@ void move(double speed, double distance, bool isForward){
 		vel_msg.linear.x =abs(speed);
 	else
 		vel_msg.linear.x =-abs(speed);
-	vel_msg.linear.y =0;
-	vel_msg.linear.z =0;
+	vel_msg.linear.y = 0;
+	vel_msg.linear.z = 0;
 	//set a random angular velocity in the y-axis
 	vel_msg.angular.x = 0;
 	vel_msg.angular.y = 0;
-	vel_msg.angular.z =0;
+	vel_msg.angular.z = 0;
 
 	double t0 = ros::Time::now().toSec();
 	double current_distance = 0.0;
@@ -89,7 +89,7 @@ void move(double speed, double distance, bool isForward){
 		loop_rate.sleep();
 		//cout<<(t1-t0)<<", "<<current_distance <<", "<<distance<<endl;
 	}while(current_distance<distance);
-	vel_msg.linear.x =0;
+	vel_msg.linear.x = 0;
 	velocity_publisher.publish(vel_msg);
 
 }

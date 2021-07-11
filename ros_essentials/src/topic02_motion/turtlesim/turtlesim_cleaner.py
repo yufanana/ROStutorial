@@ -43,10 +43,10 @@ def move(velocity_publisher, speed, distance, is_forward):
                 loop_rate.sleep()
                 
                 distance_moved = abs(math.sqrt(((x-x0) ** 2) + ((y-y0) ** 2)))
-                print  (distance_moved)
+                print(distance_moved)
                 print(x)
-                if  not (distance_moved<distance):
-                    rospy.loginfo("reached")
+                if (distance_moved>distance):
+                    rospy.loginfo("Reached")
                     break
         
         #finally, stop the robot when the distance is moved
@@ -88,7 +88,6 @@ def rotate (velocity_publisher, angular_speed_degree, relative_angle_degree, clo
     #finally, stop the robot when the distance is moved
     velocity_message.angular.z =0
     velocity_publisher.publish(velocity_message)
-
 
 def go_to_goal(velocity_publisher, x_goal, y_goal):
     global x
@@ -147,8 +146,6 @@ def gridClean(publisher):
         move(publisher, 2.0, 9.0, True)
         rotate(publisher, 20, 90, False)
     pass
-
- 
  
 def spiralClean(velocity_publisher, wk, rk):
     vel_msg = Twist()
@@ -169,8 +166,6 @@ def spiralClean(velocity_publisher, wk, rk):
     vel_msg.angular.z = 0
     velocity_publisher.publish(vel_msg)
 
-
-
 if __name__ == '__main__':
     try:
         
@@ -184,11 +179,11 @@ if __name__ == '__main__':
         pose_subscriber = rospy.Subscriber(position_topic, Pose, poseCallback) 
         time.sleep(2)
 
-        #move(velocity_publisher, 1.0, 9.0, True)
+        move(velocity_publisher, 1.0, 3.0, True)
         #rotate(velocity_publisher, 30, 90, True)
         #go_to_goal(velocity_publisher, 2.0, 1.5)
         #setDesiredOrientation(velocity_publisher, 30, 90)
         #spiralClean(velocity_publisher, 4, 0)
-        gridClean(velocity_publisher)
+        #gridClean(velocity_publisher)
     except rospy.ROSInterruptException:
         rospy.loginfo("node terminated.")
