@@ -134,6 +134,8 @@ float32 theta
 float32 linear_velocity
 float32 angular_velocity
 ```
+linear_velocity here corresponds to linear.x in Twist
+angular_velocity here corresponds to angular.z in Twist
 
 __Publish a message using CMD line__ <br>
 `rostopic pub -r 10 /turtle1/cmd_vel geometry_msgs/Twist '{linear: {x: 0.1, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}'` where
@@ -325,3 +327,39 @@ For new python files, allow the python file to be executed. <br>
 - Or enter `chmod 777 <filename.py>` in the terminal.
 
 For new C++ files, modify `add_executable` in the CMakeLists.txt accordingly.
+
+## Section 5: ROS Motion
+
+### 5.1 Motion Types
+
+Linear (x,y,z), Angular. In 2D motion, there is only z-angular for yaw.
+
+Moving in Straight Line
+- Linear x: constant
+- zero for everything else
+
+Go to Goal
+- Linear x: f(distance from goal)
+- Angular z: f(angle from goal)
+- PID controller
+
+Spiral
+- Linear x: f(time)
+- Angular z: constant
+
+### 5.2 Implementation
+Step 1: Understand topics (cmd_vel, pose) and messages to be used (Twist, Pose)
+
+__Divide & Conquer Approach__
+|Step|Description|
+|--:|-----------|
+|1|Develop a function to move in a *straight line* for a certain distance, forward and backward.|
+|2|Develop a function to *rotate* in place for a certain angle, closewise and counter-clockwise.|
+|3|Develop a function to go go a goal location.|
+|4|Develop a function to move in spiral shape |
+|5|Integrate all the above to develop the cleaning application. |
+
+`loop_rate = rospy.Rate(10)` <br>
+If the rate is low (e.g. 1 Hz), the robot's position is updated less often while it moves continuously, and it may overshoot its goal. <br>
+Balance between speed and rate to get acceptable error, where lower speed requires lower rate.
+
