@@ -1,28 +1,27 @@
-#!/usr/bin/env python
-# license removed for brevity
 import rospy
 from std_msgs.msg import String
+# std_msgs.msg is the package
 
 def talker():
-    #create a new publisher. we specify the topic name, then type of message then the queue size
     pub = rospy.Publisher('chatter', String, queue_size=10)
-    #we need to initialize the node
-    # In ROS, nodes are uniquely named. If two nodes with the same
-    # node are launched, the previous one is kicked off. The
-    # anonymous=True flag means that rospy will choose a unique
-    # name for our 'talker' node 
-    rospy.init_node('talker', anonymous=True)
-    #set the loop rate
-    rate = rospy.Rate(1) # 1hz
-    #keep publishing until a Ctrl-C is pressed
-    i = 0
+    # Creates publisher object
+    # 'chatter' is topic, String is topic type, queue_size is like a buffer/queue
+
+    rospy.init_node('talker', anonymous = True)
+    # Initialise rosnode
+    # 'talker' is name of the node, anonymous = True ensures that nodes have unique names/ID
+
+    rate = rospy.Rate(1) # in Hz
+
+    i = 0       # counter
     while not rospy.is_shutdown():
         hello_str = "hello world %s" % i
         rospy.loginfo(hello_str)
+        # Outputs into terminal
         pub.publish(hello_str)
-        rate.sleep()
-        i=i+1
-
+        rate.sleep()        # sleep duration(s) = 1/rate
+        i += 1
+ 
 if __name__ == '__main__':
     try:
         talker()

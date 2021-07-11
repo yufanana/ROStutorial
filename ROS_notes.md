@@ -69,15 +69,28 @@ To do so, enter the command `gedit .bashrc` then add `source /home/yufanana/catk
 
 Next, `source .bashrc` to active catkin workspace as default workspace.
 
+### 2.3 Packages
+catkin packages should contain `package.xml` & `CMakeLists.txt` in its own folder. 
 
+To create a new package, `cd catkin_ws/src` <br>
+`catkin_create_pkg <package_name> <depend1> <depend2d> <depend3>` <br>
+`catkin_create_pkg <package_name> std_msgs rospy ros cpp`
 
-## Section 3: *turtlesim*
+## Section 3: ROS Messages 
 
 After entering a keyword, *double tab* to view all the possible commands.
 
 ### 3.1 ROS Nodes
 `roscore` to start the master node. <br>
 `rosnode list` to get a list of nodes in a ROS computation graph. <br>
+`rosnode info /teleop_turtle` gives information about the `teleop_turtle` node, e.g.
+- Publications
+- Subscriptoins
+- Services
+- Connections
+<br>
+
+`rosrun <package_name> <py_file>` runs the python file. <br>
 `rosrun turtlesim turtlesim_node` where<br>
 - `rosrun` to run a node. <br>
 - `turtlesim` is the ROS package where the ROS node is located. <br>
@@ -86,11 +99,7 @@ After entering a keyword, *double tab* to view all the possible commands.
 
 `rosrun turtlesim turtle_teleop_key` corresponds to the keyboard. It publishes info and sends messages to the `turtlesim_node`.
 
-`rosnode info /teleop_turtle` gives information about the `teleop_turtle` node, e.g.
-- Publications
-- Subscriptoins
-- Services
-- Connections
+
 
 ### 3.2 Computation Graph
 turtle_teleop_key <--> master node <--> turtlesim_node <br>
@@ -98,7 +107,12 @@ turtle_teleop_key -> turtlesim_node, where the topic of the messages is */turtle
 
 `rosrun rqt_graph rqt_graph` displays the ROS computation graph.
 
-### 3.3 ROS Message
+### 3.3 Message Definition
+ROS messages have *.msg* file types. <br>
+
+`rosmsg show <package>/<message_type>` shows the message content. <br>
+e.g. `rosmsg show geometry_msgs/Twist` 
+
 __Topic__ <br>
 `rostopic list` to get a list of *topics* in a ROS computation graph. <br>
 e.g. 
@@ -107,30 +121,21 @@ e.g.
 - /turtle1/pose
 
 __Type__ <br>
-e.g. *package_name/message_type*
+e.g. *(package_name/message_type)*
 - turtlesim/Pose (for /turtle1/pose)
 - geometry_msgs/Twist (for /turtle1/cmd_vel) 
 
-`geometry_msgs/Twist` where
-- `geometry_msgs` is the ROS package where the ROS message is located.
-- `Twist` is the ROS message.
-- So, `<package>/<message>`
-
-`rosmsg show geometry_msgs/Twist` shows the message content.
-
-ROS messages have *.msg* file types. <br> <br>
-
 __Content__ <br>
-e.g. turtlesim/Pose
-'''
+e.g. for turtlesim/Pose
+```
 float32 x
 float32 y
 float32 theta
 float32 linear_velocity
 float32 angular_velocity
-'''
+```
 
-__Publish a message on a topic using CMD line__ <br>
+__Publish a message using CMD line__ <br>
 `rostopic pub -r 10 /turtle1/cmd_vel geometry_msgs/Twist '{linear: {x: 0.1, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}'` where
 - `pub` means publish.
 - `-r 10` means repeat 10 times.
@@ -141,153 +146,37 @@ __Publish a message on a topic using CMD line__ <br>
 __Misc__ <br>
 `rostopic echo /turtle1/cmd_vel` outputs the content of the messages in `cmd_vel` topic when the message is published.
 
+In turtlesim, the robot is only able to move using linear.x (forward, backward) and angular.z (rotate). This is sufficient for 2D motion.
 
-This robot is only able to move using linear.x (forward, backward) and angular.z (rotate). This is sufficient for 2D motion.
+### 3.4 Create Publisher/Subscriber Files
+For new python files, allow the python file to be executed. <br>
+- Right click on the file in file explorer
+- Go to Permissions
+- Check 'Allow executing file as program'
+- Or enter `chmod +x <filename.py>` in the terminal
+- Or enter `chmod 777 <filename.py>` in the terminal.
 
-### Write Publisher of ROS Topics
+For new C++ files, modify `add_executable` in the CMakeLists.txt accordingly.
+
+In ROS, nodes are uniquely named. If two nodes with the same node are launched, the previous one is kicked off. The `anonymous=True` flag means that rospy will choose a unique name for our 'listener' node so that multiple listeners can run simultaneously.
+
+In C++ implementation, Message type is not defined in node instantiation, but in the callback function.
+
+__Write Publisher of ROS Topics__ <br>
 1. Determine a name for topic.
 2. Determine the type of the messages that the topic will be publish.
 3. Determine the frequency of topic publication (per second).
 4. Create a publisher object with the above parameters.
 5. Keep publishing the topic message at the selected frequency.
 
-Python
-```python
-import rospy
-from std_msgs.msg import String
-# std_msgs.msg is the package
-
-def talker():
-    pub = rospy.Publisher('chatter', String, queue_size=10)
-    # Creates publisher object
-    # 'chatter' is topic, String is topic type, queue_size is like a buffer/queue
-
-    rospy.init_node('talker', anonymous = True)
-    # Initialise rosnode
-    # 'talker' is name of the node, anonymous = True ensures that nodes have unique names/ID
-
-    rate = rospy.Rate(1) # in Hz
-
-    i = 0       # counter
-    while not rospy.is_shutdown():
-        hello_str = "hello world %s" % i
-        rospy.loginfo(hello_str)
-        # Outputs into terminal
-        pub.publish(hello_str)
-        rate.sleep()        # sleep duration(s) = 1/rate
-        i += 1
-```
-
-C++         *Message type is not defined in node instantiation, but in the callback function.*
-```c++
-#include "ros/ros.h"
-#include "std_msgs/String.h"
-#include <sstream>
-
-int main(int argc, char **argv)
-{
-	// Initiate new ROS node named "talker"
-	ros::init(argc, argv, "talker_node");
-
-	// Create a node handle: it is reference assigned to a new node
-	ros::NodeHandle node;
-
-	// Create a publisher with a topic "chatter" that will send a String message
-	ros::Publisher chatter_publisher = node.advertise<std_msgs::String>("chatter", 1000);
-
-	// Rate is a class to define frequency for a loop. Here is 1 message every 2s.
-	ros::Rate loop_rate(0.5);
-
-   int count = 0;
-   while (ros::ok()) { // Keep spinning loop until user presses Ctrl+C
-   
-        // Create a new String ROS message.
-	    // Message definition in this link http://docs.ros.org/api/std_msgs/html/msg/String.html
-	    std_msgs::String msg;
-
-        // Create a string for the data
-	    std::stringstream ss;
-	    ss << "Hello World " << count;
-	    // Assign the string data to ROS message data field
-        msg.data = ss.str();
-
-        // Print message content in the terminal
-        ROS_INFO("[Talker] I published %s\n", msg.data.c_str());
-
-        // Publish message
-        chatter_publisher.publish(msg);
-
-        // Call this function often for ROS to process incoming messages
-        ros::spinOnce(); 
-
-        // Sleep for the rest of the cycle, to enforce the loop rate
-        loop_rate.sleep(); 
-
-        count++;
-   }
-   return 0;
-}
-```
-
-### Write Subscriber to ROS Topics
+__Write Subscriber to ROS Topics__<br>
 1. Identify the name for the topic to listen to.
 2. Identify the type of the messages to be received.
 3. Define a *callback function* that will be executed when a new message is received.
 4. Start listening for the topic messages.
 5. Spin to listen forever (in C++).
 
-Python
-```python
-import rospy
-from std_msgs.msg import String
-
-def chatter_callback(message):
-    rospy.loginto(rospy.get_caller_id() + "I heard %s", message.data)
-    # Outputs into termial
-
-    # print("I heard %s", message.data)
-
-def listener():
-    rospy.init_node('listener', anonymous = True)
-
-    rospy.Subscriber("chatter", String, chatter_callback)
-    # Creates subscriber object
-    # chatter_callback is the callback function
-
-    rospy.spin()
-    # Start listening
-```
-
-C++
-```c++
-#include "ros/ros.h"
-#include "std_msgs/String.h"
-
-// Topic messages callback
-void chatterCallback(const std_msgs::String::ConstPtr& msg)
-{
-    ROS_INFO("[Listener] I heard: [%s]\n", msg->data.c_str());
-}
-
-int main(int argc, char **argv)
-{
-    // Initiate a new ROS node named "listener"
-	ros::init(argc, argv, "listener_node");
-	//create a node handle: it is reference assigned to a new node
-	ros::NodeHandle node;
-
-    // Subscribe to a given topic, in this case "chatter".
-	//chatterCallback: is the name of the callback function that will be executed each time a message is received.
-    ros::Subscriber sub = node.subscribe("chatter", 1000, chatterCallback);
-
-    // Enter a loop, pumping callbacks
-    ros::spin();
-
-    return 0;
-}
-```
-
-### CMakeLists.txt
+__CMakeLists.txt__<br>
 File that provides all the information for the C compiler to compile and execute. <br>
 Define all the dependencies and packages used.
 
@@ -311,7 +200,7 @@ add_executable(listener_node src/topic01_basics/talker_listenenr/listener.cpp)
 target_link_libraries(listener_node ${catkin_LIBRARIES})
 ```
 
-### package.xml
+__package.xml__ <br>
 Used by `catkin_make`
 ```xml
 <buildtool_depend>catkin</buildtool_depend>
@@ -329,7 +218,7 @@ Used by `catkin_make`
 <exec_depend>std_msgs</exec_depend>
 ```
 
-### Custom Message
+### 3.5 Custom Message
 Create a `msg` folder in the ROS package folder. <br>
 Create a `.msg` file and add the fields using a text editor. <br>
 Refer to [ROS Wiki](wiki.ros.org/msg) for the built-in data types. 
@@ -342,12 +231,12 @@ Type 2 -> field 1, field 2, field 3 <br>
 string -> data
 
 e.g. *IoTSensor.msg*
-'''
+```
 int32 id
 string name
 float32 temperature
 float32 humidity
-'''
+```
 
 __Update Dependencies__ <br>
 CMakeLists.txt
@@ -361,11 +250,6 @@ package.xml
 
 In terminal, `cd catkin_ws` and run the command `catkin_make`.
 
-
-Remember to make python files executable:
-- check the option under 'Properties'.
-- Enter `chmod 777 <filename.py>` in terminal.
-
 ## Section 4: ROS Services
 
 ### 4.1 General
@@ -377,7 +261,7 @@ Service is a one-time communication. A client sends a request, and waits for the
 
 Use case: to request the robot to perform a specific action.
 
-### 4.2 ROS Service
+### 4.2 Commands
 
 `rosservice list` displays the list of services available in the active node. <br>
 `rosservice info /spawn` gives information about the specified service servers during runtime.
@@ -397,7 +281,7 @@ e.g. `rosservice call /spawn 7 7 0 turtle2` calls the `/spawn` service, where
 
 This service responds with the spawned turtle's name.
 
-### 4.3 Custom ROS Serivce: Add 2 Integers
+### 4.3 Custom ROS Service: Add 2 Integers
 
 __Steps__
 1. Define the service message (service file).
@@ -406,10 +290,9 @@ __Steps__
 4. Execute the service.
 5. Consume the service by the client
 
-### Step 1 Define Service Message
+__Step 1 Define Service Message__<br>
 Create .srv file for the service definitions, containing the request and response arguments. <br>
-For each argument, include the data type and name. <br>
-e.g. <br>
+For each argument, include the data type and name. e.g.
 ```
 int64 a
 int64 b
@@ -429,8 +312,16 @@ Update dependencies in CMakeLists.txt <br>
 
 3 header files (.h) will be created in the workspace `devel/include/ros_essentials` for the service.
 
-### Step 2 & 3 Create ROS Service/Client Node
+__Step 2 & 3 Create ROS Service/Client Node__ <br>
 Refer to source files.
 
-In C++, edit the add_executable in the CMakeList.txt <br>
-Can run the python client if the c++ server is running.
+The python client can be executed if the C++ server is running.
+
+For new python files, allow the python file to be executed. <br>
+- Right click on the file in file explorer
+- Go to Permissions
+- Check 'Allow executing file as program'
+- Or enter `chmod +x <filename.py>` in the terminal
+- Or enter `chmod 777 <filename.py>` in the terminal.
+
+For new C++ files, modify `add_executable` in the CMakeLists.txt accordingly.
