@@ -99,7 +99,7 @@ turtle_teleop_key -> turtlesim_node, where the topic of the messages is */turtle
 `rosrun rqt_graph rqt_graph` displays the ROS computation graph.
 
 ### 3.3 ROS Message
-__Topic__
+__Topic__ <br>
 `rostopic list` to get a list of *topics* in a ROS computation graph. <br>
 e.g. 
 - /turtle1/cmd_vel
@@ -107,9 +107,9 @@ e.g.
 - /turtle1/pose
 
 __Type__ <br>
-e.g.
+e.g. *package_name/message_type*
 - turtlesim/Pose (for /turtle1/pose)
-- geometry_msgs/Twist )for /turtle1/cmd_vel) 
+- geometry_msgs/Twist (for /turtle1/cmd_vel) 
 
 `geometry_msgs/Twist` where
 - `geometry_msgs` is the ROS package where the ROS message is located.
@@ -120,7 +120,7 @@ e.g.
 
 ROS messages have *.msg* file types. <br> <br>
 
-__Content__
+__Content__ <br>
 e.g. turtlesim/Pose
 '''
 float32 x
@@ -138,6 +138,7 @@ __Publish a message on a topic using CMD line__ <br>
 - `geometry_msgs/Twist` is the message type.
 - `'{linear: {x: 0.1, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z :0.0}}'` is the data in json format.
 
+__Misc__ <br>
 `rostopic echo /turtle1/cmd_vel` outputs the content of the messages in `cmd_vel` topic when the message is published.
 
 
@@ -327,3 +328,109 @@ Used by `catkin_make`
 <exec_depend>rospy</exec_depend>
 <exec_depend>std_msgs</exec_depend>
 ```
+
+### Custom Message
+Create a `msg` folder in the ROS package folder. <br>
+Create a `.msg` file and add the fields using a text editor. <br>
+Refer to [ROS Wiki](wiki.ros.org/msg) for the built-in data types. 
+
+Structure: *package_name/message_type* <br>
+Type 1 -> field 1, field 2, field 3 <br>
+*linear -> x, y, z* <br>
+Type 2 -> field 1, field 2, field 3 <br>
+*angular -> x, y, z* <br>
+string -> data
+
+e.g. *IoTSensor.msg*
+'''
+int32 id
+string name
+float32 temperature
+float32 humidity
+'''
+
+__Update Dependencies__ <br>
+CMakeLists.txt
+- Add `message_generation` as a dependency under `find_package`.
+- Add the `.msg` file under `add_message_files`.
+- Add `message_runtime` under `catkin_package` beside `CATKIN_DEPENDS`.
+
+package.xml
+- `<build_depend>message_generation</build_depend>
+- `<exec_depend>message_runtime</exec_depend>
+
+In terminal, `cd catkin_ws` and run the command `catkin_make`.
+
+
+Remember to make python files executable:
+- check the option under 'Properties'.
+- Enter `chmod 777 <filename.py>` in terminal.
+
+## Section 4: ROS Services
+
+### 4.1 General
+
+ROS Server, ROS Client. <br>
+Synchronous, bi-directional (request & response message), one-time.
+
+Service is a one-time communication. A client sends a request, and waits for the server to return a response. The client will only wait and not do anything else until the response is received, unless a timeout is used.
+
+Use case: to request the robot to perform a specific action.
+
+### 4.2 ROS Service
+
+`rosservice list` displays the list of services available in the active node. <br>
+`rosservice info /spawn` gives information about the specified service servers during runtime.
+
+`rossrv list` displays the list of services in the workspace.<br>
+`rossrv show <service>` displays all the packages with the specified service. <br>
+`rossrv info turtlesim/Spawn` displays the service definitions (request args, response args) by accessing the .srv files, where
+- `turtlesim` is the package
+- `Spawn` is the message type.
+
+`rosservice call <service> <service_arguments>` <br>
+e.g. `rosservice call /spawn 7 7 0 turtle2` calls the `/spawn` service, where
+- x -> 7
+- y -> 7
+- theta -> 0
+- name -> turtle2
+
+This service responds with the spawned turtle's name.
+
+### 4.3 Custom ROS Serivce: Add 2 Integers
+
+__Steps__
+1. Define the service message (service file).
+2. Create ROS Server node.
+3. Create ROS Client node.
+4. Execute the service.
+5. Consume the service by the client
+
+### Step 1 Define Service Message
+Create .srv file for the service definitions, containing the request and response arguments. <br>
+For each argument, include the data type and name. <br>
+e.g. <br>
+```
+int64 a
+int64 b
+---
+int64 sum
+```
+Update dependencies in package.xml <br>
+```
+<build_depend>message_generation</build_depend>
+
+<exec_depend>message_runtime</exec_depend>
+```
+Update dependencies in CMakeLists.txt <br>
+- add `message_generation` under `find_package`
+- add `file_name.srv` under `add_service_files`
+- `cakin_make` in workspace directory to create the service
+
+3 header files (.h) will be created in the workspace `devel/include/ros_essentials` for the service.
+
+### Step 2 Create ROS Service Node
+Refer to source files.
+
+### Step 3 Create ROS Client Node
+Refer to source files.
