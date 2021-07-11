@@ -9,7 +9,8 @@
         "/home/yufanana/catkin_ws/devel/include/**",
         "/opt/ros/noetic/include/**",
         "/home/yufanana/catkin_ws/src/ros_basics_tutorials/include/**",
-        "/home/yufanana/catkin_ws/src/ros_essentials_cpp/include/**",
+        "/home/yufanana/catkin_ws/src/ros_essentials/include/**",
+        "/home/yufanana/catkin_ws/src/ros_service_assignment/include/**",
         "/usr/include/**"
       ],
       "name": "ROS"
