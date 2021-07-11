@@ -429,8 +429,8 @@ Update dependencies in CMakeLists.txt <br>
 
 3 header files (.h) will be created in the workspace `devel/include/ros_essentials` for the service.
 
-### Step 2 Create ROS Service Node
+### Step 2 & 3 Create ROS Service/Client Node
 Refer to source files.
 
-### Step 3 Create ROS Client Node
-Refer to source files.
+In C++, edit the add_executable in the CMakeList.txt <br>
+Can run the python client if the c++ server is running.
