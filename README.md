@@ -1,4 +1,4 @@
-# ros_essentials_cpp for ROS Noetic
+# ros_essentials Package for ROS Noetic
 This repository contains the code needed for the Udemy course entitled
 ROS For Beginners: Basics, Motion and OpenCV
 https://www.udemy.com/ros-essentials/
