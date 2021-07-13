@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# not updated/use
+
 import rospy
 from geometry_msgs.msg import Twist
 import math

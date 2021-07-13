@@ -8,8 +8,8 @@ import time
 from std_srvs.srv import Empty
 
 def poseCallback(pose_message):
-    global x
-    global y, yaw
+    # updates the global position and yaw
+    global x, y, yaw
     x= pose_message.x
     y= pose_message.y
     yaw = pose_message.theta
@@ -19,11 +19,10 @@ def poseCallback(pose_message):
     #print ('y = %f' %pose_message.y) #used in python 2
     #print ('yaw = {}'.format(pose_message.theta)) #new in python 3
 
-
 def move(velocity_publisher, speed, distance, is_forward):
-        #declare a Twist message to send velocity commands
+        # declare a Twist message to send velocity commands
         velocity_message = Twist()
-        #get current location 
+        # get current location 
         global x, y
         x0=x
         y0=y
@@ -34,7 +33,7 @@ def move(velocity_publisher, speed, distance, is_forward):
         	velocity_message.linear.x =-abs(speed)
 
         distance_moved = 0.0
-        loop_rate = rospy.Rate(10) # we publish the velocity at 10 Hz (10 times a second)    
+        loop_rate = rospy.Rate(10) # publish the velocity at 10 Hz (10 times a second)    
         
         while True :
                 rospy.loginfo("Turtlesim moves forwards")
@@ -49,12 +48,13 @@ def move(velocity_publisher, speed, distance, is_forward):
                     rospy.loginfo("Reached")
                     break
         
-        #finally, stop the robot when the distance is moved
+        # stop the robot when the distance is moved
         velocity_message.linear.x =0
         velocity_publisher.publish(velocity_message)
     
 def rotate (velocity_publisher, angular_speed_degree, relative_angle_degree, clockwise):
     
+    # clockwise -> negative
     velocity_message = Twist()
 
     angular_speed=math.radians(abs(angular_speed_degree))
@@ -63,66 +63,88 @@ def rotate (velocity_publisher, angular_speed_degree, relative_angle_degree, clo
         velocity_message.angular.z =-abs(angular_speed)
     else:
         velocity_message.angular.z =abs(angular_speed)
-
-    angle_moved = 0.0
-    loop_rate = rospy.Rate(10) # we publish the velocity at 10 Hz (10 times a second)    
-    cmd_vel_topic='/turtle1/cmd_vel'
-    velocity_publisher = rospy.Publisher(cmd_vel_topic, Twist, queue_size=10)
-
+    
+    loop_rate = rospy.Rate(100) # we publish the velocity at 10 Hz (10 times a second)    
+    
+    # initialise helper variables
     t0 = rospy.Time.now().to_sec()
 
     while True :
-        rospy.loginfo("Turtlesim rotates")
+        # rospy.loginfo("Turtlesim rotating")
         velocity_publisher.publish(velocity_message)
 
         t1 = rospy.Time.now().to_sec()
         current_angle_degree = (t1-t0)*angular_speed_degree
         loop_rate.sleep()
-
-
                        
-        if  (current_angle_degree>relative_angle_degree):
-            rospy.loginfo("reached")
+        if(current_angle_degree>relative_angle_degree):
+            rospy.loginfo("Reached")
             break
 
-    #finally, stop the robot when the distance is moved
+    # stop the robot when the rotation is moved
     velocity_message.angular.z =0
     velocity_publisher.publish(velocity_message)
 
 def go_to_goal(velocity_publisher, x_goal, y_goal):
-    global x
-    global y, yaw
+    global x, y, yaw
 
     velocity_message = Twist()
 
-    while (True):
+    while (True):   # Proportional controller
+        # linear variation
         K_linear = 0.5 
         distance = abs(math.sqrt(((x_goal-x) ** 2) + ((y_goal-y) ** 2)))
+        linear_speed = K_linear * distance
 
-        linear_speed = distance * K_linear
-
+        # angular variation
         K_angular = 4.0
         desired_angle_goal = math.atan2(y_goal-y, x_goal-x)
-        angular_speed = (desired_angle_goal-yaw)*K_angular
+        angular_speed = K_angular * (desired_angle_goal-yaw)
 
+        # publish message
         velocity_message.linear.x = linear_speed
         velocity_message.angular.z = angular_speed
-
         velocity_publisher.publish(velocity_message)
-        print ('x=', x, ', y=',y, ', distance to goal: ', distance)
+        print('x=', x, ', y=',y, ', distance to goal: ', distance)
 
-        if (distance <0.01):
+        if (distance<1):
             break
 
+    # stop the turtle
+    velocity_message.linear.x = 0
+    velocity_message.angular.z = 0
+    velocity_publisher.publish(velocity_message)
+    print("Reached")
+
 def setDesiredOrientation(publisher, speed_in_degree, desired_angle_degree):
+    # in absolute terms
+    # still needs to refine. sometimes turtle may overshoot.
+
+    global yaw
+
     relative_angle_radians = math.radians(desired_angle_degree) - yaw
-    clockwise=0
-    if relative_angle_radians < 0:
-        clockwise = 1
+    print ("relative_angle_radians: ",relative_angle_radians)
+    
+    # desired is leading yaw
+    if relative_angle_radians>0:
+        if relative_angle_radians< math.pi/2+0.05:
+            clockwise = 0
+        else:
+            print("here1")
+            clockwise = 1
+            relative_angle_radians = 2*math.pi - relative_angle_radians
+    
+    # desired is trailing yaw
     else:
-        clockwise = 0
-    print ("relative_angle_radians: ",math.degrees(relative_angle_radians))
+        print("here")
+        if relative_angle_radians< -math.pi/2-0.05:
+            clockwise = 1
+            #relative_angle_radians = 2*math.pi - relative_angle_radians
+        else:
+            clockwise = 0
+    
     print ("desired_angle_degree: ",desired_angle_degree)
+    print ("relative_angle_degrees: ",math.degrees(relative_angle_radians))
     rotate(publisher, speed_in_degree,math.degrees(abs(relative_angle_radians)), clockwise)
 
 def gridClean(publisher):
@@ -132,7 +154,7 @@ def gridClean(publisher):
     desired_pose.y = 1
     desired_pose.theta = 0
  
-    go_to_goal(publisher, 1,1)
+    go_to_goal(publisher, desired_pose.x ,desired_pose.y)
  
     setDesiredOrientation(publisher, 30, math.radians(desired_pose.theta))
  
@@ -152,7 +174,8 @@ def spiralClean(velocity_publisher, wk, rk):
     loop_rate = rospy.Rate(1)
  
     while((x<10.5) and (y<10.5)):
-        rk=rk+1
+        rk=rk+0.5
+        #wk = wk + 0.001
         vel_msg.linear.x =rk
         vel_msg.linear.y =0
         vel_msg.linear.z =0
@@ -171,19 +194,22 @@ if __name__ == '__main__':
         
         rospy.init_node('turtlesim_motion_pose', anonymous=True)
 
-        #declare velocity publisher
+        # declare velocity publisher
         cmd_vel_topic='/turtle1/cmd_vel'
         velocity_publisher = rospy.Publisher(cmd_vel_topic, Twist, queue_size=10)
         
+        # declare position publisher
         position_topic = "/turtle1/pose"
         pose_subscriber = rospy.Subscriber(position_topic, Pose, poseCallback) 
         time.sleep(2)
 
-        move(velocity_publisher, 1.0, 3.0, True)
+        #move(velocity_publisher, 1.0, 3.0, True)
         #rotate(velocity_publisher, 30, 90, True)
         #go_to_goal(velocity_publisher, 2.0, 1.5)
-        #setDesiredOrientation(velocity_publisher, 30, 90)
-        #spiralClean(velocity_publisher, 4, 0)
-        #gridClean(velocity_publisher)
+        #setDesiredOrientation(velocity_publisher, 60, 135)
+        #spiralClean(velocity_publisher, 3, 1)
+        #spiralClean(velocity_publisher, 0.5, 1)
+        gridClean(velocity_publisher)
+
     except rospy.ROSInterruptException:
         rospy.loginfo("node terminated.")

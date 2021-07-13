@@ -36,7 +36,7 @@ void spiralClean(double rk, double wk);
 
 int main(int argc, char **argv)
 {
-	// Initiate new ROS node named "talker"
+	// Initiate new ROS node named "turtlesim_cleaner"
 	ros::init(argc, argv, "turtlesim_cleaner");
 	ros::NodeHandle n;
 	double speed, angular_speed;
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 	pose_subscriber = n.subscribe("/turtle1/pose", 10, poseCallback);
 
 	/** test your code here **/
-	ROS_INFO("\n\n\n******START TESTING************\n");
+	ROS_INFO("\n\n\n******START yf TESTING************\n");
 	ros::Rate loop_rate(0.5);
 	//gridClean();
 	//loop.sleep();
@@ -87,13 +87,14 @@ void move(double speed, double distance, bool isForward){
 		current_distance = speed * (t1-t0);
 		ros::spinOnce();
 		loop_rate.sleep();
+		ROS_INFO("Turtle rotating");
 		//cout<<(t1-t0)<<", "<<current_distance <<", "<<distance<<endl;
 	}while(current_distance<distance);
 	vel_msg.linear.x = 0;
 	velocity_publisher.publish(vel_msg);
+	ROS_INFO("Reached");
 
 }
-
 
 void rotate (double angular_speed, double relative_angle, bool clockwise){
 
@@ -118,11 +119,11 @@ void rotate (double angular_speed, double relative_angle, bool clockwise){
 		velocity_publisher.publish(vel_msg);
 		double t1 = ros::Time::now().toSec();
 		current_angle = angular_speed * (t1-t0);
-		ros::spinOnce();
+		ros::spinOnce();		// impt for C++
 		loop_rate.sleep();
 	}while(current_angle<relative_angle);
 
-	vel_msg.angular.z =0;
+	vel_msg.angular.z = 0;
 	velocity_publisher.publish(vel_msg);
 
 }
@@ -131,13 +132,11 @@ double degrees2radians(double angle_in_degrees){
 	return angle_in_degrees *PI /180.0;
 }
 
-
 void setDesiredOrientation (double desired_angle_radians){
 	double relative_angle_radians = desired_angle_radians - turtlesim_pose.theta;
 	bool clockwise = ((relative_angle_radians<0)?true:false);
 	//cout<<desired_angle_radians <<","<<turtlesim_pose.theta<<","<<relative_angle_radians<<","<<clockwise<<endl;
 	rotate (degrees2radians(10), abs(relative_angle_radians), clockwise);
-
 }
 
 void poseCallback(const turtlesim::Pose::ConstPtr & pose_message){
@@ -156,23 +155,26 @@ void moveGoal(turtlesim::Pose  goal_pose, double distance_tolerance){
 
 	ros::Rate loop_rate(100);
 	double E = 0.0;
-	do{
-		/****** Proportional Controller ******/
-		//linear velocity in the x-axis
-		double Kp=1.0;
-		double Ki=0.02;
+	do{ 	// Proportional Controller
+
+		
+		double Kp = 1.0;	// for linear speed
+		double Ki = 0.02; // for angular speed
 		//double v0 = 2.0;
 		//double alpha = 0.5;
 		double e = getDistance(turtlesim_pose.x, turtlesim_pose.y, goal_pose.x, goal_pose.y);
-		double E = E+e;
+		// double E = E+e;
 		//Kp = v0 * (exp(-alpha)*error*error)/(error*error);
-		vel_msg.linear.x = (Kp*e);
+
+		// linear velocity in the x-axis
+		vel_msg.linear.x = Kp * e;
 		vel_msg.linear.y =0;
 		vel_msg.linear.z =0;
-		//angular velocity in the z-axis
+
+		// angular velocity in the z-axis
 		vel_msg.angular.x = 0;
 		vel_msg.angular.y = 0;
-		vel_msg.angular.z =4*(atan2(goal_pose.y-turtlesim_pose.y, goal_pose.x-turtlesim_pose.x)-turtlesim_pose.theta);
+		vel_msg.angular.z = Ki *(atan2(goal_pose.y-turtlesim_pose.y, goal_pose.x-turtlesim_pose.x)-turtlesim_pose.theta);
 
 		velocity_publisher.publish(vel_msg);
 
@@ -180,13 +182,13 @@ void moveGoal(turtlesim::Pose  goal_pose, double distance_tolerance){
 		loop_rate.sleep();
 
 	}while(getDistance(turtlesim_pose.x, turtlesim_pose.y, goal_pose.x, goal_pose.y)>distance_tolerance);
-	cout<<"end move goal"<<endl;
-	vel_msg.linear.x =0;
+
+	// Reached
+	std::cout<<"Reached"<<std::endl;
+	vel_msg.linear.x = 0;
 	vel_msg.angular.z = 0;
 	velocity_publisher.publish(vel_msg);
 }
-
-
 
 void gridClean(){
 
@@ -225,7 +227,6 @@ void gridClean(){
 	double distance = getDistance(turtlesim_pose.x, turtlesim_pose.y, x_max, y_max);
 
 }
-
 
 void spiralClean(double rk, double wk){
 	geometry_msgs::Twist vel_msg;
