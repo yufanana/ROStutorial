@@ -418,3 +418,38 @@ __Logging__ <Br>
 Python: `rospy.loginfo()` <br>
 C++: `ROS_INFO()`
 
+## Section 5: Computer Vision with OpenCV
+
+### 5.1 Applications
+
+__Image Segmentation__ <br>
+The process of partitioning a digital image into multiple segments. <br>
+Used to locate objects and boundaries (e.g. lines, curves) in images. <br>
+
+__Image Thresholding__<br>
+Simplest method of image segmentation. <br>
+Take a colour as a threshold <br>
+- any colour above threshold -> white
+- any colour below threshold -> black
+
+This process creates binary images.
+
+__Object Detection and Recognition__ <br>
+Detecting instances of semantic objects of a certain class in digital images and videos.
+
+__Drawing__ <br>
+Drawing shapes like lines, polygons, text, circles.
+
+__Edge Detection__ <br>
+Find the boundaries of objects within images. <br>
+Works by detecting discontinuities in brightness. <br>
+Used for image segmentation and data extraction. <br>
+
+__Video/Image Input/Output__ <br>
+Read/write images and video streams.
+
+__Installation__ <br>
+I followed the instructions here to build OpenCV <br>
+http://www.codebind.com/cpp-tutorial/install-opencv-ubuntu-cpp/
+
+### 5.2 
