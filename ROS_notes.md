@@ -76,6 +76,17 @@ To create a new package, `cd catkin_ws/src` <br>
 `catkin_create_pkg <package_name> <depend1> <depend2d> <depend3>` <br>
 `catkin_create_pkg <package_name> std_msgs rospy ros cpp`
 
+### 2.4 Launch File
+Launches/rosrun multiple nodes instead of opening many terminals and typing in the command.
+
+Can use `roslaunch package_name file_name.launch` to skip the roscore command.
+```xml
+<launch>
+  <node name="turtlesim" pkg="turtlesim" type="turtlesim_node" />
+  <node name="cleaner_node" pkg="ros_essentials" type="turtlesim_cleaner.py" />
+</launch>
+```
+
 ## Section 3: ROS Messages 
 
 After entering a keyword, *double tab* to view all the possible commands.
@@ -158,7 +169,8 @@ For new python files, allow the python file to be executed. <br>
 - Or enter `chmod +x <filename.py>` in the terminal
 - Or enter `chmod 777 <filename.py>` in the terminal.
 
-For new C++ files, modify `add_executable` in the CMakeLists.txt accordingly.
+For new C++ files, modify `add_executable` in the CMakeLists.txt accordingly. <br>
+The name of the nodes are defined in the CMakeLists `add_executable()`.
 
 In ROS, nodes are uniquely named. If two nodes with the same node are launched, the previous one is kicked off. The `anonymous=True` flag means that rospy will choose a unique name for our 'listener' node so that multiple listeners can run simultaneously.
 
