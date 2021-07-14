@@ -363,3 +363,7 @@ __Divide & Conquer Approach__
 If the rate is low (e.g. 1 Hz), the robot's position is updated less often while it moves continuously, and it may overshoot its goal. <br>
 Balance between speed and rate to get acceptable error, where lower speed requires lower rate.
 
+__Logging__ <Br>
+Python: `rospy.loginfo()` <br>
+C++: `ROS_INFO()`
+
