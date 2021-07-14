@@ -80,12 +80,51 @@ To create a new package, `cd catkin_ws/src` <br>
 Launches/rosrun multiple nodes instead of opening many terminals and typing in the command.
 
 Can use `roslaunch package_name file_name.launch` to skip the roscore command.
+
 ```xml
 <launch>
   <node name="turtlesim" pkg="turtlesim" type="turtlesim_node" />
   <node name="cleaner_node" pkg="ros_essentials" type="turtlesim_cleaner.py" />
 </launch>
 ```
+
+To launch another .launch file,
+```xml
+<launch>
+  <include file="$(find ros_essentials)/src/topic02_motion/launch/turtlesim_teleop.launch"/>
+
+  <node name="cleaner_node" pkg="ros_essentials" type="turtlesim_cleaner.py" />
+</launch>
+```
+
+To include parameteres,
+```xml
+<param name="x_goal" value="3.0"/>
+<param name="y_goal" value="7.0"/>
+```
+
+Then in the python file,
+```python
+x_goal = rospy.get_param("x_goal")
+y_goal = rospy.get_param("y_goal")
+```
+
+Add `output = "screen"` to the `<node>` to display output.
+
+### 2.5 ROS Network Configuration
+For ROS Indigo(?). No idea what's this for
+
+User Workstation: 
+- `gedit .bashrc`
+- `ifconfig` to get IP address / inet addr
+- Under #ROBOT MACHINE CONFIGURATION, `export ROS_HOSTNAME` and `export ROS_IP`, paste workstation's IP address
+- For `export ROS_MASTER_URI`, paste the robot machine's IP address
+
+Robot Machine: 
+- `gedit .bashrc`
+- `ifconfig` to get IP address / inet addr
+- Under #ROBOT MACHINE CONFIGURATION, `export ROS_HOSTNAME` and `export ROS_IP`, paste robot machine's IP address for 
+- ROS_MASTER_URI for robot machine will be on localhost
 
 ## Section 3: ROS Messages 
 
