@@ -37,7 +37,7 @@ void spiralClean(double rk, double wk);
 int main(int argc, char **argv)
 {
 	// Initiate new ROS node named "turtlesim_cleaner"
-	ros::init(argc, argv, "turtlesim_cleaner");
+	ros::init(argc, argv, "turtle_cleaner");
 	ros::NodeHandle n;
 	double speed, angular_speed;
 	double distance, angle;
