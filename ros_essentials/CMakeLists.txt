@@ -81,8 +81,8 @@ target_link_libraries (listener_node ${catkin_LIBRARIES})
 
 
 #robot cleaner
-add_executable(turtlesim_clean_node src/topic02_motion/turtlesim/robot_cleaner.cpp)
-target_link_libraries (turtlesim_clean_node ${catkin_LIBRARIES})
+add_executable(turtle_cleaner_node src/topic02_motion/turtlesim/robot_cleaner.cpp)
+target_link_libraries (turtle_cleaner_node ${catkin_LIBRARIES})
 
 
 add_executable(add_two_ints_server src/topic01_basics/service/add_two_ints_server.cpp)
