@@ -479,8 +479,6 @@ __Open/Save Image__ <br>
 
 `img.dtype` to obtain image datatype.
 
-
-
 __Image Encoding__ <br>
 - Grayscale 
 - Red, Green, Blue (RGB)
@@ -498,3 +496,39 @@ Then, you can go on to show each channel image.
 
 `gray_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)` to convert color to grayscale. <br>
 `hsv_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2HSV)` to convert color to HSV.
+
+__Video Stream Input__ <br>
+`video_capture = cv2.VideoCapture(0)` to open a camera for video capturing. <br>
+`video_capture.release()` Ensure that the capture object is released subsequently before exiting the script. 
+
+`ret,frame = video_capture.read()` where frame is the image from the video, and ret is the return value. ret becomes false if no frames has been grabbed (camera disconnected, end of video file)
+
+
+
+Use 'Q' button to break the while-loop and exit the script. <br>
+```python
+if cv2.waitKey(1) & 0xFF == ord('q'):
+    break
+```
+
+__Drawing__ <br>
+Points are represented as tuples: `(x1,y1)`, `(x2,y2)`<br>
+Color is represented in BGR tuple: `(255,0,0)` <br>
+Thickness is an integer: draws filled if negative, outline if positive
+
+`cv2.rectangle(image,pt1,pt2,color,thickness)` to draw a rectangle.
+
+`cv2.line(image,pt1,pt2,color,thickness)` to draw a line.
+
+Axes is a tuple: (major_axis_length, minor_axis_length) <br>
+`cv2.ellipse(image,center_pt,axes,angle,startAngle,endAngle,color,thickness)` to draw an ellipse.
+
+`cv2.circle(image,center_pt,radius,color,thickness)` to draw a circle.
+
+Origin is the bottom-left corer of the text string. <br>
+`cv2.putText(image,text,orgin,font_type,font_size,color,thickness)` to put text on the image.
+
+
+
+
+cd ros_essentials/src/topic03_perception/
