@@ -452,4 +452,49 @@ __Installation__ <br>
 I followed the instructions here to build OpenCV <br>
 http://www.codebind.com/cpp-tutorial/install-opencv-ubuntu-cpp/
 
-### 5.2 
+### 5.2 OpenCV (no ROS)
+
+numpy is multidimensional array data structure is used to store pixel values of images.
+
+__Executing Python files__ <br>
+Include `#!/usr/bin/env python` at the top of the file. Then, enter `./file_name.py` in the terminal to run the specified file in the current directory.
+
+OR
+
+Enter `python3 file_name.py` in the terminal.
+
+__Open/Save Image__ <br>
+`color_img = cv2.imread("path/to/img.jpg", CV_LOAD_IMAGE_COLOR)` for colour image. <br>
+`gray_img = cv2.imread("path/to/img.jpg", CV_LOAD_IMAGE_GRAYSCALE)` for grayscale image.
+
+`cv2.namedWindow("window_name", cv2.WINDOW_NORMAL)` to create a window holder for image. The window can be referenced later to be moved, resized, closed, etc. <br>
+`cv2.moveWindow("window_name",x_pos,y_pos)` to move the window to specified location.
+
+`cv2.imshow("window_name",img)` to display image in the specified window.
+
+`cv2.imwrite("path/to/file"+img_name+".jpg",img)` to save the image as specified file name at specified path.
+
+`height, length, channels = img.shape` gives the dimensions of the numpy array. Channels are for colour images.<br>
+`img[:,:,0]` to return all the values in the first channel.
+
+`img.dtype` to obtain image datatype.
+
+
+
+__Image Encoding__ <br>
+- Grayscale 
+- Red, Green, Blue (RGB)
+- Hue, Saturation, Value (HSV)
+  - Hue: 0-360, indicates type of colour
+  - Saturation: 0-100%, amount of gray in colour
+  - Value: 0-100%, brightness level, with 0 as black and 100 as most colour
+
+<img src="./notes_images/HSV_cylinder.png" height=200>
+
+`blue,green,red = cv2.split(color_image)` to split image into the 3 channels. <br>
+Then, you can go on to show each channel image.
+
+`stiched_img = np.concatenate((array1,array2,array3),axis=1)` to concatenate the arrays along its length. Use `axis=0` to concatenate along its height.
+
+`gray_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)` to convert color to grayscale. <br>
+`hsv_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2HSV)` to convert color to HSV.
