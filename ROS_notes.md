@@ -528,7 +528,51 @@ Axes is a tuple: (major_axis_length, minor_axis_length) <br>
 Origin is the bottom-left corer of the text string. <br>
 `cv2.putText(image,text,orgin,font_type,font_size,color,thickness)` to put text on the image.
 
+__CvBridge__ <br>
+The image file produced by ROS (ROS Image Message) is not immediately compatible with the OpenCV format (OpenCV cv::Mat). Thus, CvBridge is needed to do the conversion (bidirectional).
 
+`bridge = CvBridge()` to make a bridge object.
+
+Inside the `image_ballback(ros_image)` function
+```python
+try:
+    cv_image = bridge.imgmsg_to_cv2(ros_image, "bgr8")
+except CvBridgeError as e:
+    print(e)
+```
+OpenCV operations can be applied to cv_image after this step.
+
+`rosrun usb_cam usb_cam_node _pixel_format:= yuyv` to run the usb_cam
+
+
+__Thresholding__ <br>
+Simplest method of image segmentation. <br>
+Take a colour as a threshold to compare against the pixel values. <br>
+
+`cv2.threshold(gray_image,threshold_value,max_value,threshold_style)` to run simple thresholding.<br>
+max_value is typically 255 (?)
+
+Threshold styles
+- THRESH_BINARY
+- THRESH_BINARY_INV
+- THRESH_TRUNC
+- THRESH_TOZERO
+- THRESH_TOZERO_INV
+
+Simple thresholding may not be good in all lighting conditions (e.g. shadow in a section of image) 
+
+Adaptive thresholding:
+- calculates threshold for a small region of the image
+- different thresholds calculated for different regions of the same image
+- greater robustness against varying illumination
+
+`cv2.adaptive_thresholding(gray_image,max_value,adaptive_method,block_size,constant)` to run adaptive thresholding. <br>
+Block size: size of neighbourhood area <br>
+Constant: constant that is subtracted from the mean/weight mean calculated
+
+Adaptive styles
+- ADAPTIVE_THRESH_MEAN_C
+- ADAPTIVE_THRESH_GAUSSIAN_C
 
 
 cd ros_essentials/src/topic03_perception/
