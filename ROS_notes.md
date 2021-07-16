@@ -470,6 +470,8 @@ __Open/Save Image__ <br>
 `cv2.namedWindow("window_name", cv2.WINDOW_NORMAL)` to create a window holder for image. The window can be referenced later to be moved, resized, closed, etc. <br>
 `cv2.moveWindow("window_name",x_pos,y_pos)` to move the window to specified location.
 
+`cv2.destroyAllWindows()` to destroy all windows. Usually called after the quit wait key.
+
 `cv2.imshow("window_name",img)` to display image in the specified window.
 
 `cv2.imwrite("path/to/file"+img_name+".jpg",img)` to save the image as specified file name at specified path.
@@ -603,5 +605,49 @@ yellowLower =(30, 150, 100)
 yellowUpper = (50, 255, 255)
 ```
 2. Saturation and value ranges are can be obtained via trial & error. Generally on the higher side.
+
+__Contour Detection__ <br>
+Contours: curves with the same color/intensity that join all the continuous points along a boundary
+
+To find the boundaries of objects within image. <br>
+This is done by detecting discontinuities in brightness. <br>
+Useful for shape detection, image segmentation, object detection/recognition.
+
+Algorithm
+- Read image as RGB
+- Convert image to grayscale
+- Convert gray image to binary image
+- Find contours using `cv2.findContours()` on the binary image
+- Process the contours (e.g. area, centroid, perimeter, moment)
+
+Contour Hierarchy <br>
+Outer shape: parent, inner shape: child.
+
+Contour Retrieval Modes (RETR: retrieve)
+- `RETR_LIST`: returns all contours without parent-child relationships
+- `RETR_EXTERNAL`: returns extreme outer contours only
+- `RETR_CCOMP`: returns all contours, arranged in a 2-level hierarchy
+- `RETR_TREE`: returns all contours in full family hierarchy
+
+`contours, hierarchy = cv2.findContours(binary_img, contour_retr_mode, contour_approx_method)`
+
+__Contour Processing__ <br>
+Can create a blank black image to overlay processed contours and check the results.
+
+Common operations
+```python
+area = cv2.contourArea(c)
+perimeter= cv2.arcLength(c, True)
+((x, y), radius) = cv2.minEnclosingCircle(c)
+
+def get_contour_center(contour):
+    M = cv2.moments(contour)
+    cx=-1
+    cy=-1
+    if (M['m00']!=0):
+        cx= int(M['m10']/M['m00'])
+        cy= int(M['m01']/M['m00'])
+    return cx, cy
+```
 
 cd ros_essentials/src/topic03_perception/

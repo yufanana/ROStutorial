@@ -50,18 +50,26 @@ def draw_contours(image, contours, image_name):
     cv2.imshow(image_name,image)
 
 def process_contours(binary_image, rgb_image, contours):
+    # create a blank black image to overlay processed contours
     black_image = np.zeros([binary_image.shape[0], binary_image.shape[1],3],'uint8')
     
     for c in contours:
+        # common processing operations
         area = cv2.contourArea(c)
         perimeter= cv2.arcLength(c, True)
         ((x, y), radius) = cv2.minEnclosingCircle(c)
+
+        # draw the identified contours on the blank black image
         cv2.drawContours(rgb_image, [c], -1, (150,250,150), 1)
         cv2.drawContours(black_image, [c], -1, (150,250,150), 1)
+
+        # draw a circle around the identified contours
         cx, cy = get_contour_center(c)
         cv2.circle(rgb_image, (cx,cy),(int)(radius),(0,0,255),1)
         cv2.circle(black_image, (cx,cy),(int)(radius),(0,0,255),1)
+        
         print ("Area: {}, Perimeter: {}".format(area, perimeter))
+        
     print ("number of contours: {}".format(len(contours)))
     cv2.imshow("RGB Image Contours",rgb_image)
     cv2.imshow("Black Image Contours",black_image)
