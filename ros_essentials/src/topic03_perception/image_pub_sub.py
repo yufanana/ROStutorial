@@ -10,7 +10,7 @@ import sys
 bridge = CvBridge()
 
 def image_callback(ros_image):
-  print 'got an image'
+  print('got an image')
   global bridge
   #convert ros_image into an opencv-compatible image
   try:
