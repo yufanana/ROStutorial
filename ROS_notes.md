@@ -489,6 +489,14 @@ __Image Encoding__ <br>
 
 <img src="./notes_images/HSV_cylinder.png" height=200>
 
+OpenCV uses different ranges for HSV. <br>
+- Hue: 0-180
+- Saturation: 0-255
+- Value: 0-255
+
+<img src="./notes_images/HSV_color_space.jpg" height=150>
+
+
 `blue,green,red = cv2.split(color_image)` to split image into the 3 channels. <br>
 Then, you can go on to show each channel image.
 
@@ -574,5 +582,26 @@ Adaptive styles
 - ADAPTIVE_THRESH_MEAN_C
 - ADAPTIVE_THRESH_GAUSSIAN_C
 
+__Color Filtering__ <br>
+The process displays only a specific color range in the image. <br>
+This allows for the detection of objects with specific colors. <br>
+HSV is used for filtering because it is more robust against external lighting conditions. <br>
+Similar colors will be closer within the a range (angles) in HSV than in RGB.
+
+Algorithm
+- Read image as RGB
+- Convert image to HSV
+- Define upper and lower color ranges
+- Create the mask based on color ranges
+
+OpenCV has its own convention to define the ranges of hue, saturation and value.
+
+__Tennis Ball Example__ <br>
+1. Choose the yellow angle range
+```python
+yellowLower =(30, 150, 100)
+yellowUpper = (50, 255, 255)
+```
+2. Saturation and value ranges are can be obtained via trial & error. Generally on the higher side.
 
 cd ros_essentials/src/topic03_perception/
