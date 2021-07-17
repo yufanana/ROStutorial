@@ -233,6 +233,8 @@ __CMakeLists.txt__<br>
 File that provides all the information for the C compiler to compile and execute. <br>
 Define all the dependencies and packages used.
 
+Syntax: `add_executable(name_of_exe_file relative/path/to/source_file.cpp)`
+
 ```txt
 cmake_minimum_required(VERSION 2.8.3)
 project(ros_essentials_cpp)
@@ -638,7 +640,7 @@ Common operations
 ```python
 area = cv2.contourArea(c)
 perimeter= cv2.arcLength(c, True)
-((x, y), radius) = cv2.minEnclosingCircle(c)
+((x, y), radius) = cv2.minEnclosingCircle(c)  # returns the circle with min area that fully contains the contour
 
 def get_contour_center(contour):
     M = cv2.moments(contour)
@@ -649,5 +651,55 @@ def get_contour_center(contour):
         cy= int(M['m01']/M['m00'])
     return cx, cy
 ```
+
+__Tennis Ball Detection__ <br>
+
+Steps
+1. Read image as RGB
+2. Apply color filtering to get a binary image mask
+3. Generate contours using the binary image
+4. Draw contours that are sufficiently large
+
+__Tennis Ball Tracking__ <br>
+
+Steps
+1. Read image as RGB
+2. Apply color filtering to get a binary image mask
+3. Generate contours using the binary image
+4. Draw contours that are sufficiently large
+
+__OpenCV C++ Implementation__ <br>
+
+CMakeList.txt
+```
+find_package(OpenCV)
+include_directories(${OpenCV_INCLUDE_DIRS})
+add_executable(read_video_cpp src/topic03_perception/cpp/read_video.cpp)
+target_link_libraries(read_video_cpp ${catkin_LIBRARIES})
+target_link_libraries(read_video_cpp ${OpenCV_LIBRARIES})
+```
+
+
+__OpenCV & ROS C++ Implementation__ <br>
+For C++ OpenCV Implementation with ROS, <br>
+a `image_transport::ImageTransport it_;` is used to create a subscriber/advertiser instead of a node to handle images.
+
+CMakeList.txt
+```
+find_package(
+  roscpp
+  std_msgs
+  OpenCV
+  cv_bridge
+  image_transport
+)
+
+include_directories(${OpenCV_INCLUDE_DIRS})
+add_executable(image_pub_sub src/topic03_perception/cpp/image_pub_sub.cpp)
+target_link_libraries(image_pub_sub ${catkin_LIBRARIES})
+target_link_libraries(image_pub_sub ${OpenCV_LIBRARIES})
+```
+
+
 
 cd ros_essentials/src/topic03_perception/

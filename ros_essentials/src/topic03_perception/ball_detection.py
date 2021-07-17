@@ -23,11 +23,11 @@ def filter_color(rgb_image, lower_bound_color, upper_bound_color):
 
     return mask
 
-def getContours(binary_image):      
+def getContours(mask):      
     #_, contours, hierarchy = cv2.findContours(binary_image, 
     #                                          cv2.RETR_TREE, 
     #                                           cv2.CHAIN_APPROX_SIMPLE)
-    _, contours, hierarchy = cv2.findContours(binary_image.copy(), 
+    contours, hierarchy = cv2.findContours(mask.copy(), 
                                             cv2.RETR_EXTERNAL,
 	                                        cv2.CHAIN_APPROX_SIMPLE)
     return contours
@@ -40,6 +40,8 @@ def draw_ball_contour(binary_image, rgb_image, contours):
         area = cv2.contourArea(c)
         perimeter= cv2.arcLength(c, True)
         ((x, y), radius) = cv2.minEnclosingCircle(c)
+
+        # only draw contours that are sufficiently large
         if (area>100):
             cv2.drawContours(rgb_image, [c], -1, (150,250,150), 1)
             cv2.drawContours(black_image, [c], -1, (150,250,150), 1)
@@ -75,8 +77,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()

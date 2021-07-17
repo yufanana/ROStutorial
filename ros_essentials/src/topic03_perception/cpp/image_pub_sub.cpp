@@ -19,8 +19,7 @@ public:
     : it_(nh_)
   {
     // Subscribe to input video feed and publish output video feed
-    image_sub_ = it_.subscribe("image", 1,
-      &ImageConverter::imageCallback, this);
+    image_sub_ = it_.subscribe("image", 1, &ImageConverter::imageCallback, this);
     image_pub_ = it_.advertise("/image_converter/output_video", 1);
 
     cv::namedWindow(OPENCV_WINDOW);
@@ -33,6 +32,7 @@ public:
   
   void imageCallback(const sensor_msgs::ImageConstPtr& msg)
   {
+    // msg contains the image
     cv_bridge::CvImagePtr cv_ptr;
     try
     {
