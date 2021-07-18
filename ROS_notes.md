@@ -544,6 +544,8 @@ Origin is the bottom-left corer of the text string. <br>
 __CvBridge__ <br>
 The image file produced by ROS (ROS Image Message) is not immediately compatible with the OpenCV format (OpenCV cv::Mat). Thus, CvBridge is needed to do the conversion (bidirectional).
 
+<img src="./notes_images/cv_bridge_map.png" height=150>
+
 `bridge = CvBridge()` to make a bridge object.
 
 Inside the `image_ballback(ros_image)` function
