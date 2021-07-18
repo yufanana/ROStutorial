@@ -151,6 +151,8 @@ After entering a keyword, *double tab* to view all the possible commands.
 
 `rospy.init_node('noade_name,anonymous = True)` to create a new node with the specified name. 
 
+In ROS, nodes are uniquely named. If two nodes with the same node are launched, the previous one is kicked off. The `anonymous=True` flag means that rospy will choose a unique name for our 'listener' node so that multiple listeners can run simultaneously.
+
 ### 3.2 Computation Graph
 turtle_teleop_key <--> master node <--> turtlesim_node <br>
 turtle_teleop_key -> turtlesim_node, where the topic of the messages is */turtle1/cmd_vel*.
@@ -211,8 +213,6 @@ For new python files, allow the python file to be executed. <br>
 For new C++ files, modify `add_executable` in the CMakeLists.txt accordingly. <br>
 The name of the nodes are defined in the CMakeLists `add_executable()`.
 
-In ROS, nodes are uniquely named. If two nodes with the same node are launched, the previous one is kicked off. The `anonymous=True` flag means that rospy will choose a unique name for our 'listener' node so that multiple listeners can run simultaneously.
-
 In C++ implementation, Message type is not defined in node instantiation, but in the callback function.
 
 __Write Publisher of ROS Topics__ <br>
@@ -222,12 +222,39 @@ __Write Publisher of ROS Topics__ <br>
 4. Create a publisher object with the above parameters.
 5. Keep publishing the topic message at the selected frequency.
 
+```python
+pub = rospy.Publisher('topic_name', String, queue_size=10)
+rospy.init_node('talker_node_name', anonymous = True)
+rate = rospy.Rate(1) # in Hz
+
+i = 0       # counter
+while not rospy.is_shutdown():
+    msg = "hello world %s" % i
+    rospy.loginfo(msg)
+    pub.publish(msg)
+    rate.sleep()        
+    i += 1
+```
+
 __Write Subscriber to ROS Topics__<br>
 1. Identify the name for the topic to listen to.
 2. Identify the type of the messages to be received.
 3. Define a *callback function* that will be executed when a new message is received.
 4. Start listening for the topic messages.
 5. Spin to listen forever (in C++).
+
+```python
+def chatter_callback(message):
+    rospy.loginfo("I heard %s", message.data)
+
+def listener():
+    rospy.init_node('listener_node_name', anonymous = True)
+    rospy.Subscriber('topic_name', String, chatter_callback)
+    rospy.spin()
+
+if __name__ == '__main__':
+    listener()
+```
 
 __CMakeLists.txt__<br>
 File that provides all the information for the C compiler to compile and execute. <br>
@@ -512,6 +539,8 @@ Then, you can go on to show each channel image.
 
 __Video Stream Input__ <br>
 `video_capture = cv2.VideoCapture(0)` to open a camera for video capturing. <br>
+`video_capture = cv2.VideoCapture('absolute/path/to/video_fil.mp4')` to open a video file from local directory.
+
 `video_capture.release()` Ensure that the capture object is released subsequently before exiting the script. 
 
 `ret,frame = video_capture.read()` where frame is the image from the video, and ret is the return value. ret becomes false if no frames has been grabbed (camera disconnected, end of video file)
@@ -548,7 +577,6 @@ The image file produced by ROS (ROS Image Message) is not immediately compatible
 
 `bridge = CvBridge()` to make a bridge object.
 
-Inside the `image_ballback(ros_image)` function
 ```python
 from cv_bridge import CvBridge, CvBridgeError
 
