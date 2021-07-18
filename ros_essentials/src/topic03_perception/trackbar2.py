@@ -1,11 +1,9 @@
 #!/usr/bin/env python 
- 
+  
+# Implementation without a while loop. Non-empty on_trackbar function.
+
 import cv2
 import numpy as np
-
-def empty(i):
-    pass
-
 
 def on_trackbar(val):
     hue_min = cv2.getTrackbarPos("Hue Min", "TrackedBars")
@@ -28,10 +26,9 @@ def on_trackbar(val):
     cv2.imshow("Mask", imgMASK)
     cv2.imshow("Original & HSV", stitched_img)
 
-path = "images/tree.jpg"
-cv2.namedWindow("TrackedBars")
-cv2.resizeWindow("TrackedBars", 640, 150)
 
+cv2.namedWindow("TrackedBars")
+# cv2.resizeWindow("TrackedBars", 640, 150)
 cv2.createTrackbar("Hue Min", "TrackedBars", 0, 179, on_trackbar)
 cv2.createTrackbar("Hue Max", "TrackedBars", 179, 179, on_trackbar)
 cv2.createTrackbar("Sat Min", "TrackedBars", 0, 255, on_trackbar)
@@ -39,8 +36,9 @@ cv2.createTrackbar("Sat Max", "TrackedBars", 255, 255, on_trackbar)
 cv2.createTrackbar("Val Min", "TrackedBars", 0, 255, on_trackbar)
 cv2.createTrackbar("Val Max", "TrackedBars", 255, 255, on_trackbar)
 
-while(True):
-    
+path = "images/tree.jpg"
+
+# while(True):
 
 img = cv2.imread(path)
 imgHSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -49,5 +47,7 @@ imgHSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 on_trackbar(0)
 
 # Wait until user press some key
-cv2.waitKey()
+#if cv2.waitKey(1) & 0xFF == ord('q'):
+#break
+cv2.waitKey()  
 cv2.destroyAllWindows()

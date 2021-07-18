@@ -149,7 +149,7 @@ After entering a keyword, *double tab* to view all the possible commands.
 
 `rosrun turtlesim turtle_teleop_key` corresponds to the keyboard. It publishes info and sends messages to the `turtlesim_node`.
 
-
+`rospy.init_node('noade_name,anonymous = True)` to create a new node with the specified name. 
 
 ### 3.2 Computation Graph
 turtle_teleop_key <--> master node <--> turtlesim_node <br>
@@ -474,7 +474,8 @@ __Open/Save Image__ <br>
 
 `cv2.destroyAllWindows()` to destroy all windows. Usually called after the quit wait key.
 
-`cv2.imshow("window_name",img)` to display image in the specified window.
+`cv2.imshow("window_name",img)` to display image in the specified window. <br>
+Should call `cv2.waitKey(1)` to allow high GUI some time to process the draw requests from `cv2.imshow()`.
 
 `cv2.imwrite("path/to/file"+img_name+".jpg",img)` to save the image as specified file name at specified path.
 
@@ -547,8 +548,17 @@ The image file produced by ROS (ROS Image Message) is not immediately compatible
 
 Inside the `image_ballback(ros_image)` function
 ```python
+from cv_bridge import CvBridge, CvBridgeError
+
+# convert ros img_msg to cv_image (e.g. in scubscriber)
 try:
     cv_image = bridge.imgmsg_to_cv2(ros_image, "bgr8")
+except CvBridgeError as e:
+    print(e)
+  
+# convert cv_image to ros img_msg (e.g. in publisher_)
+try:
+    ros_img = bridge.cv2_to_imgmsg(cv_image, encoding = "passthrough")
 except CvBridgeError as e:
     print(e)
 ```
@@ -703,3 +713,4 @@ target_link_libraries(image_pub_sub ${OpenCV_LIBRARIES})
 
 
 cd ros_essentials/src/topic03_perception/
+

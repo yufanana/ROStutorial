@@ -4,8 +4,8 @@ import cv2
 import numpy
 
 # create capture object
-video_capture = cv2.VideoCapture(1)
-# video_capture = cv2.VideoCapture('video/ros.mp4')
+# video_capture = cv2.VideoCapture(1)
+video_capture = cv2.VideoCapture('video/ros.mp4')
 
 while(True):
 	ret, frame = video_capture.read()
