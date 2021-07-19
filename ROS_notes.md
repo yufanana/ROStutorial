@@ -905,7 +905,41 @@ rm -rf ros_lib
 rosrun rosserial_arduino make_libraries.py .
 ```
 
+__rosserial_python__ <br>
+A python-based implementation (recommended for PC usage)
 
+__rosserial_server__ <br>
+A C++ implementation, has some limitations compared to rosserial_python, but recommended for high-performance applications
 
+__serial_node__ <br>
+Interface/bridge between rosserial_arduino deployed on Arduino platform and ROS ecosystem on the workstation. <br>
+Arduino can now act as a ROS node.
+
+Steps to run the program
+1. Upload program onto the Arduino board.
+2. `roscore`
+3. `rosrun rosserial_python serial_node.py /dev/ttyACM0`
+4. `rostopic echo /chatter`
+
+Google for the ROS msg documentation to find the fields needed in the messgae. <br>
+Initialise these fields in the Arduino code to send a complete/valid ROS msg.
+
+In the case of an ultrasound sensor, `sensor_msgs/Range` is used.
+
+__rosserial Publisher__ <br>
+Refer to the hello world tutorial.
+
+__rosserial Subscriber__ <br>
+Refer to the blink tutorial. 
+
+Check the port number by going to Arduino IDE > Tools > Port '/dev/ttyACM1 (Arduino/Genuino Uno)' <br>
+Thus, the port is /dev/ttyACM1 <br>
+May need to restart roscore, Arduino IDE if there is an error.
+
+Steps to run the program
+1. Upload program onto the Arduino board.
+2. `roscore`
+3. `rosrun rosserial_python serial_node.py /dev/ttyACM0`
+4. `rostopc echo `
 
 cd ros_essentials/src/topic03_perception
