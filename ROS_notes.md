@@ -250,6 +250,7 @@ def chatter_callback(message):
 def listener():
     rospy.init_node('listener_node_name', anonymous = True)
     rospy.Subscriber('topic_name', String, chatter_callback)
+    # prevents python from exiting until the node is stopped
     rospy.spin()
 
 if __name__ == '__main__':
@@ -740,7 +741,171 @@ target_link_libraries(image_pub_sub ${catkin_LIBRARIES})
 target_link_libraries(image_pub_sub ${OpenCV_LIBRARIES})
 ```
 
+## Section 6: Laser Range Finders
+
+### 5.1 Applications
+Laser scanners measure the distances to obstacles using laser beams.
+
+- Simultaneous Localisation and Mapping (SLAM): building maps
+- Obstacle avoidance 
+- Navigation
+
+Laser Scanner Characteristics
+- Minimum angle: start angle of scan
+- Maximum angle: end angle of scan
+- Field of view: max-min angle
+- Angular increment/resolution: angular distance between measurements
+- Time increment: time between measurements
+- Scan time: time between 2 scans
+- Minimum range: minimum observable range value
+- Maximum range: maximum observable range value
+- List of ranges: list of all measurements in a scan
+- List of intensities: list of all intensities in a scan
+
+Commercial Laser Scanners
+- Indoor
+    - Hokuyo URG-04LX-UG01, USD 1000+
+    - RPLIDAR A2, USD 470+
+    - Asus Live Pro
+- Outdoor
+    - SICK LMS151, USD 5200+
+    - Hokuyo UTM-30LX USD 4700+
+- Lidar Lite, USD 130+ (unidirectional)
+
+RGB Depth (RGBD) Cameras
+- Has the normal stereo cameras and laser scanner for depth
+- Orbbec Astra S, USD 170+
+- Intel RealSense Camera R200, USD 170+
+
+### 5.2 Connecting RGBD Camera as Laser Scanner
+
+Need to run the drivers that connect to the RGBD Cameras and publish as ROS messages. <br>
+`roslaunch openni2_launch openni2.launch` <br>
+Note: OpenNI2 is a generic driver, should verify compatibility with the hardware
+
+```
+sudo apt-get update
+sudo apt-get install ros-noetic-openni2
+```
+
+Initially, RGBD Cameras publish raw images, compressed images and depth images without any ROS Topic.
+
+Convert depth image to laser scanner. <br>
+`roslaunch ros_essentials depth_image_to_laser.launch`
+
+``` xml
+<launch>
+<node name="depthimage_to_laserscan" pkg="depthimage_to_laserscan" type="depthimage_to_laserscan"> 
+  <remap from="image" to="/camera/depth/image_raw"/>
+</node>
+</launch>
+```
+
+To test the RGBD Camera,
+```
+rosrun image_view image_view image:=/camera/rgb/image_raw
+rosrun image_view image_view image:=/camera/depth/image_raw
+```
+
+`rosrun depthimage_to_laserscan depthimage_to_laserscan image:=camera/depth/image_raw` to convert RGBD images to laser scanner topic (/scan)
 
 
-cd ros_essentials/src/topic03_perception/
+__rviz ROS Visualisation__ <br>
+- `rosrun rviz rviz` <br>
+- Select fixed frame
+- Select 'Add' to add new 'LaserScan' topic
+- Select '/scan` for the Topic
 
+
+__Hukoyo URG 04-LX__ <br>
+`sudo apt-get install ros-noetic-urg-node` to install the urg-node package
+
+`rosrun urg_node urg_node` to start the urg_node package. <br>
+The scan topic is published immediately without additional steps.
+
+`rosrun tf static_transform_publisher 0.0 0.0 0.0 0.0 0.0 0.0 1.0 map laser 10` to initialize the positino to x-y-z origin with zero orientation.
+
+.bag files are used to log the data collected.
+```
+mkdir bagiles
+cd bagfiles/
+rosbag record -a
+```
+
+To playback the data collected events,
+```
+roscore
+rosrun rviz rviz
+cd bagfiles/
+rosbag info file_name.bag
+rosbag play file_name.bag
+```
+Select '/scan' topic in the rviz UI.
+
+
+Inside the scan_msg, there are many objects like angle_min, range_min, ranges. <br>
+ranges is an array containing all the collected range data.
+
+Filter through the ranges array to discard the `nan` values.
+`ranges = [x for x in ranges if not math.isnan(x)]`
+
+
+__C++ Implementation__ <br>
+Can use header files to condense the main source code. <br>
+Edit the CMakeList to include the newly added library (laserscan_lib and utility_lib).
+```
+add_library(utility_lib src/topic04_perception02_laser/laserscan/utility_lib.cpp)
+
+#LaserScan
+add_library(laserscan_lib src/topic04_perception02_laser/laserscan/LaserScanner.cpp)
+target_link_libraries(laserscan_lib ${catkin_LIBRARIES})
+add_dependencies(laserscan_lib ${catkin_EXPORTED_TARGETS})
+target_link_libraries(laserscan_lib utility_lib)
+
+add_executable(scan_subscriber_cpp src/topic04_perception02_laser/scan_subscriber.cpp)
+target_link_libraries(scan_subscriber_cpp ${catkin_LIBRARIES})
+target_link_libraries(scan_subscriber_cpp laserscan_lib)
+```
+
+
+## Section 7: ROS Serial
+
+There is a needed for a communication protocol between hardware and ROS. <br>
+ROS Serial allows for easy integration of micro-controllers and embedded systems into ROS. <br>
+No need for custom drivers and communication protocol (in C).
+
+- rosserial_client: generic, any processor with ANSI C++ compiler and a serial port connection to a computer running ROS
+- rosserial_arduino
+- rosserial_embeddedlinux
+- rosserial_windows
+- rosserial_mbed
+- rosserial_tivac
+- rosserial_stm32
+- ros_teensy
+
+
+### rosserial_arduino
+
+To run the Arduino IDE,
+```
+cd arduino
+./arduino
+```
+
+Install rosserial arduino and rosserial
+```
+sudo apt-get install ros-noetic-rosserial-arduino
+sudo apt-get install ros-noetic-rosserial
+```
+
+Install ROS libraries in Arduino. Run `roscore` in one window. In another window:
+```
+cd arduino/libraries/
+rm -rf ros_lib
+rosrun rosserial_arduino make_libraries.py .
+```
+
+
+
+
+cd ros_essentials/src/topic03_perception

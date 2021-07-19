@@ -62,13 +62,6 @@ include_directories(
 )
 
 
-add_library(utility_lib src/topic04_perception02_laser/laserscan/utility_lib.cpp)
-
-#LaserScan
-add_library(laserscan_lib src/topic04_perception02_laser/laserscan/LaserScanner.cpp)
-target_link_libraries(laserscan_lib ${catkin_LIBRARIES})
-add_dependencies(laserscan_lib ${catkin_EXPORTED_TARGETS})
-target_link_libraries(laserscan_lib utility_lib)
 
 #talker
 add_executable(talker_node src/topic01_basics/talker_listener/talker.cpp)
@@ -111,3 +104,12 @@ target_link_libraries(open_copy_cpp ${OpenCV_LIBRARIES})
 add_executable(image_pub_sub_cpp src/topic03_perception/cpp/image_pub_sub.cpp)
 target_link_libraries(image_pub_sub_cpp ${catkin_LIBRARIES})
 target_link_libraries(image_pub_sub_cpp ${OpenCV_LIBRARIES})
+
+
+add_library(utility_lib src/topic04_perception02_laser/laserscan/utility_lib.cpp)
+
+#LaserScan
+add_library(laserscan_lib src/topic04_perception02_laser/laserscan/LaserScanner.cpp)
+target_link_libraries(laserscan_lib ${catkin_LIBRARIES})
+add_dependencies(laserscan_lib ${catkin_EXPORTED_TARGETS})
+target_link_libraries(laserscan_lib utility_lib)
