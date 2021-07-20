@@ -959,11 +959,9 @@ Steps to run the program
 3. `rosrun rosserial_python serial_node.py /dev/ttyACM0`
 4. `rostopc echo `
 
-cd ros_essentials/src/topic03_perception
-
 Aliases used <br>
 ```
-alias burger='export TURTLEBOT3_MODEL=burger' 
+alias burger='export TURTLEBOT3_MODEL=burger'
 alias waffle='export TURTLEBOT3_MODEL=waffle'
 alias tb3fake='roslaunch turtlebot3_fake turtlebot3_fake.launch'
 alias tb3teleop='roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch'
@@ -971,3 +969,34 @@ alias tb3='roslaunch turtlebot3_gazebo turtlebot3_empty_world.launch'
 alias tb3maze='roslaunch turtlebot3_gazebo turtlebot3_world.launch'
 alias tb3house='roslaunch turtlebot3_gazebo turtlebot3_house.launch'
 ```
+
+
+## Section 8: ROS Navigation
+
+Map files are `.yaml` and `.pgm`. <br>
+In the `.yaml` file, the first line should be <br>
+`/home/user_name/path_to_map_files/tb3_house_map.pgm`
+
+While launching navigation nodes, <br>
+`roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=/home/path_to_map_file/tb3_house_map.yaml`
+
+__Initial Robot Location__
+- When newly executed, the location of the robot in RViz and Gazebo may not be the same.
+- The robot does not know its initial location.
+- Use 2D Pose Estimate in RViz to select the location and set the bearing.
+
+__Frame__
+A frame is a reference that is used to localise objects/robots.
+
+- Enable grid view in RViz by checking 'Grid'
+- Centre of the grid is the origin (0,0)
+- The origin is used as the reference frame
+- To visualise different frames, go to Add > TF
+
+`rostopic echo /odom` to view the current robot location w.r.t. odom frame.
+
+`rostopic echo /amcl_pose` to view the current robot location and orientation w.r.t. map frame.
+
+Quaternion is used to describe orientation (x,y,z,w).
+
+
