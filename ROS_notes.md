@@ -37,7 +37,7 @@ ____
 6. [Computer Vision with OpenCV](#6) <br>
     6.1 [Applications](#6.1) <br>
     6.2 [OpenCV](#6.2) <br>
-        6.2.1 [Executing Python Files](#6.2.1) <br>
+    >   6.2.1 [Executing Python Files](#6.2.1) <br>
         6.2.2 [Open/Save Image](#6.2.2) <br>
         6.2.3 [Image Encoding](#6.2.3) <br>
         6.2.4 [Video Stream Input](#6.2.4) <br>
@@ -46,12 +46,14 @@ ____
         6.2.7 [Color Filtering](#6.2.7) <br>
         6.2.8 [Tennis Ball Example](#6.2.8) <br>
         6.2.9 [Contour Detection](#6.2.9) <br>
+
     6.3 [OpenCV with ROS](#6.3) <br>
-        6.3.1 [C++ Implementation](#6.3.1) <br>
+    >  6.3.1 [CV Bridge](#6.3.1) <br>
+       6.3.2 [C++ Implementation](#6.3.2) <br>
 7. [Laser Range Finders](#7) <br>
     7.1 [Applications](#7.1) <br>
     7.2 [Connecting RGBD Camera](#7.1) <br>
-    7.3 [ROS Visualisation RViz](#7.2) <br>
+    7.3 [ROS Visualisation (RViz)](#7.2) <br>
     7.4 [C++ Implementation](#7.3) <br>
 8. [ROS Serial](#8.1) <br>
     8.1 [rosserial_arduino](#8.1) <br>
@@ -62,25 +64,34 @@ ____
     8.6 [rosserial Subscriber](#8.6) <br>
 9. [ROS Navigation](#9) <br>
 
+__Quick Tips for Terminal Command__<br>
+After entering a keyword, *double tab* to view all the possible commands.
 
 ## Section 1: ROS Concepts <a name="1"></a>
+[Go to top](#top)
 
 There are 3 communication patterns. <br>
 TCPROS layers are established between the nodes with the help of the master node before communication can begin.
 
 ### 1.1 Publisher/Subscriber <a name="1.1"></a>
+[Go to top](#top)
+
 Publisher ->  (topic) -> Subscriber </br>
 It supports 1:N, N:1, N:N </br>
 Possible topics: location (x, y, theta), obstacle (x, y), temperature, pressure.
 
 E.g. multiple nodes require images from a camera.
 
-### 1.2 ROS Services
+### 1.2 ROS Services <a name="1.2"></a>
+[Go to top](#top)
+
 Client -> (service request) -> Server </br>
 Server -> (responds to service) -> Client </br>
 This is synchronous.
 
-### 1.3 ROS ActionLib
+### 1.3 ROS ActionLib <a name="1.3"></a>
+[Go to top](#top)
+
 Client -> (action goal) -> Server </br>
 Server -> (action feedback) -> Client (while waiting) </br>
 Server -> (action result) -> Client (when done) </br>
@@ -88,7 +99,9 @@ This is asynchronous, clients can do other stuff while waiting.
 
 E.g. move base, navigation step.
 
-### 1.4 ROS Computation Graph
+### 1.4 ROS Computation Graph <a name="1.4"></a>
+[Go to top](#top)
+
 ROS is composed of different nodes. Nodes can communicate with other nodes via messages (topics, services, actions, parameters). 
 
 Each node can be a 
@@ -102,31 +115,43 @@ Start a new terminal window to run other ROS commands.
 
 `rosrun rqt_graph rqt_graph` displays the ROS computation graph.
 
-### 1.5 ROS Limitations
+### 1.5 ROS Limitations <a name="1.5"></a>
+[Go to top](#top)
+
 Not able to control a swarm of robots. (?)</br>
 Not real-time, where all processes have the same priority. </br>
 It requires a reliable network (bandwidth). </br>
 It has a possible single point of failure. </br>
 
-### 1.6 ROS Benefits
+### 1.6 ROS Benefits <a name="1.6"></a>
+[Go to top](#top)
+
 Gives the user the ability to control the state of the robot, and the ability to read the state of the robot anytime.
 
-## Section 2: Set Up
-### 2.1 Installation
+## Section 2: Set Up <a name="2"></a>
+[Go to top](#top)
+
+### 2.1 Installation <a name="2.1"></a>
+[Go to top](#top)
+
 Follow the instructions on [ROS installation wiki](http://wiki.ros.org/ROS/Installation_). </br>
 Look out for the duration of long-term support.
 
-### 2.2 Workspace
+### 2.2 Workspace <a name="2.2"></a>
+[Go to top](#top)
+
 Follow the instructions on [ROS workspace wiki](https://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment).
 
 The `setup.bash` file in the default ROS installation folder needs to be executed before running ROS applications in the terminal. <br>
 To run `setup.bash` automatically each time a new terminal is opened, 
-- In a terminal, enter the command `gedit .bashrc`. `.bashrc` is executed every time a terminal is opened.
+- In a terminal, enter the command `gedit .bashrc`.
+- Note: `.bashrc` is executed every time a terminal is opened.
 - Add `source /opt/ros/noetic/setup.bash` near the end of the file.
 - Save and open a new terminal.
 - Enter `roscore` to check whether it works.
 
-By convention, workspaces are found in the home directory. <br>
+By convention, workspaces are found in the home directory.
+
 To create a new workspace,
 ```
 mkdir -p ~/name_ws/src
@@ -135,22 +160,27 @@ catkin_make
 ```
 
 To activate the catkin workspace, you will need to source/access the `setup.bash` file. </br>
-- In a terminal, enter the command `gedit .bashrc`. `.bashrc` is executed every time a terminal is opened.
+- In a terminal, enter the command `gedit .bashrc`.
+- Note:`.bashrc` is executed every time a terminal is opened.
 - Add `source /home/user_name/name_ws/devel/setup.bash`
 - Save and open a new terminal
 - Enter `roscd` to enter the default ROS workspace.
 
-Next, `source .bashrc` to active catkin workspace as default workspace.
+### 2.3 Packages <a name="2.3"></a>
+[Go to top](#top)
 
-### 2.3 Packages
 Packages are like ROS projects. <br>
 catkin packages should contain `package.xml` & `CMakeLists.txt` in its own folder. 
 
 To create a new package, `cd catkin_ws/src` <br>
 `catkin_create_pkg <package_name> <depend1> <depend2d> <depend3>` <br>
-e.g. `catkin_create_pkg <package_name> std_msgs rospy roscpp`
+e.g. `catkin_create_pkg ros_essentials std_msgs rospy roscpp`
 
-### 2.4 Launch Files
+New packages can be included along the way by modifying the CMakeLists.txt and package.xml files.
+
+### 2.4 Launch Files <a name="2.4"></a>
+[Go to top](#top)
+
 Launches/rosrun multiple nodes instead of opening many terminals and typing in the command.
 
 Can use `roslaunch package_name file_name.launch` to skip the roscore command.
@@ -185,8 +215,10 @@ y_goal = rospy.get_param("y_goal")
 
 Add `output = "screen"` to the `<node>` to display output.
 
-### 2.5 ROS Network Configuration
-For ROS Indigo(?). No idea what's this for
+### 2.5 ROS Network Configuration <a name="2.5"></a>
+[Go to top](#top)
+
+Yu Fan: Is this for ROS Indigo? I have no idea what's this for.
 
 User Workstation: 
 - `gedit .bashrc`
@@ -200,11 +232,12 @@ Robot Machine:
 - Under #ROBOT MACHINE CONFIGURATION, `export ROS_HOSTNAME` and `export ROS_IP`, paste robot machine's IP address for 
 - ROS_MASTER_URI for robot machine will be on localhost
 
-## Section 3: ROS Messages 
+## Section 3: ROS Messages  <a name="3"></a>
+[Go to top](#top)
 
-After entering a keyword, *double tab* to view all the possible commands.
+### 3.1 ROS Nodes <a name="3.1"></a>
+[Go to top](#top)
 
-### 3.1 ROS Nodes
 `roscore` to start the master node. <br>
 `rosnode list` to get a list of nodes in a ROS computation graph. <br>
 `rosnode info /teleop_turtle` gives information about the `teleop_turtle` node, e.g.
@@ -215,25 +248,30 @@ After entering a keyword, *double tab* to view all the possible commands.
 <br>
 
 `rosrun <package_name> <py_file>` runs the python file. <br>
+`rosrun <package> <node>` to execute a node defined in a C++ file. <br>
 `rosrun turtlesim turtlesim_node` where<br>
 - `rosrun` to run a node. <br>
 - `turtlesim` is the ROS package where the ROS node is located. <br>
 - `turtlesim_node` is the node to execute.
-- So, `rosrun <package> <node>` to execute a node.
 
 `rosrun turtlesim turtle_teleop_key` corresponds to the keyboard. It publishes info and sends messages to the `turtlesim_node`.
 
+__Python Implementation__ <br>
 `rospy.init_node('noade_name,anonymous = True)` to create a new node with the specified name. 
 
 In ROS, nodes are uniquely named. If two nodes with the same node are launched, the previous one is kicked off. The `anonymous=True` flag means that rospy will choose a unique name for our 'listener' node so that multiple listeners can run simultaneously.
 
-### 3.2 Computation Graph
+### 3.2 Computation Graph <a name="3.2"></a>
+[Go to top](#top)
+
 turtle_teleop_key <--> master node <--> turtlesim_node <br>
 turtle_teleop_key -> turtlesim_node, where the topic of the messages is */turtle1/cmd_vel*.
 
 `rosrun rqt_graph rqt_graph` displays the ROS computation graph.
 
-### 3.3 Message Definition
+### 3.3 Message Definition <a name="3.3"></a>
+[Go to top](#top)
+
 ROS messages have *.msg* file types. <br>
 
 `rosmsg show <package>/<message_type>` shows the message content. <br>
@@ -245,6 +283,8 @@ e.g.
 - /turtle1/cmd_vel
 - /turtle1/color_sensor
 - /turtle1/pose
+
+`rostopic echo /turtle1/cmd_vel` outputs the content of the messages in `cmd_vel` topic when the message is published.
 
 __Type__ <br>
 e.g. *(package_name/message_type)*
@@ -260,8 +300,11 @@ float32 theta
 float32 linear_velocity
 float32 angular_velocity
 ```
-linear_velocity here corresponds to linear.x in Twist
-angular_velocity here corresponds to angular.z in Twist
+`linear_velocity` here corresponds to `linear.x` in Twist <br>
+`angular_velocity` here corresponds to `angular.z` in Twist
+
+In turtlesim, the robot is only able to move using linear.x (forward, backward) and angular.z (rotate). <br>
+This is sufficient for 2D motion.
 
 __Publish a message using CMD line__ <br>
 `rostopic pub -r 10 /turtle1/cmd_vel geometry_msgs/Twist '{linear: {x: 0.1, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}'` where
@@ -271,23 +314,16 @@ __Publish a message using CMD line__ <br>
 - `geometry_msgs/Twist` is the message type.
 - `'{linear: {x: 0.1, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z :0.0}}'` is the data in json format.
 
-__Misc__ <br>
-`rostopic echo /turtle1/cmd_vel` outputs the content of the messages in `cmd_vel` topic when the message is published.
 
-In turtlesim, the robot is only able to move using linear.x (forward, backward) and angular.z (rotate). This is sufficient for 2D motion.
+### 3.4 Create Publisher/Subscriber Files <a name="3.4"></a>
+[Go to top](#top)
 
-### 3.4 Create Publisher/Subscriber Files
-For new python files, allow the python file to be executed. <br>
+For new python files, modify permissions to allow the python file to be executed. <br>
 - Right click on the file in file explorer
 - Go to Permissions
 - Check 'Allow executing file as program'
 - Or enter `chmod +x <filename.py>` in the terminal
 - Or enter `chmod 777 <filename.py>` in the terminal.
-
-For new C++ files, modify `add_executable` in the CMakeLists.txt accordingly. <br>
-The name of the nodes are defined in the CMakeLists `add_executable()`.
-
-In C++ implementation, Message type is not defined in node instantiation, but in the callback function.
 
 __Write Publisher of ROS Topics__ <br>
 1. Determine a name for topic.
@@ -297,6 +333,7 @@ __Write Publisher of ROS Topics__ <br>
 5. Keep publishing the topic message at the selected frequency.
 
 ```python
+# python
 pub = rospy.Publisher('topic_name', String, queue_size=10)
 rospy.init_node('talker_node_name', anonymous = True)
 rate = rospy.Rate(1) # in Hz
@@ -318,6 +355,7 @@ __Write Subscriber to ROS Topics__<br>
 5. Spin to listen forever (in C++).
 
 ```python
+# python
 def chatter_callback(message):
     rospy.loginfo("I heard %s", message.data)
 
@@ -330,6 +368,11 @@ def listener():
 if __name__ == '__main__':
     listener()
 ```
+
+For new C++ files, modify `add_executable` in the CMakeLists.txt accordingly. <br>
+The name of the nodes are defined in the CMakeLists `add_executable()`.
+
+In C++ implementation, Message type is not defined in node instantiation, but in the callback function.
 
 __CMakeLists.txt__<br>
 File that provides all the information for the C compiler to compile and execute. <br>
@@ -375,7 +418,9 @@ Used by `catkin_make`
 <exec_depend>std_msgs</exec_depend>
 ```
 
-### 3.5 Custom Messages
+### 3.5 Custom Messages <a name="3.5"></a>
+[Go to top](#top)
+
 Create a `msg` folder in the ROS package folder. <br>
 Create a `.msg` file and add the fields using a text editor. <br>
 Refer to [ROS Wiki](wiki.ros.org/msg) for the built-in data types. 
@@ -402,26 +447,30 @@ CMakeLists.txt
 - Add `message_runtime` under `catkin_package` beside `CATKIN_DEPENDS`.
 
 package.xml
-- `<build_depend>message_generation</build_depend>
-- `<exec_depend>message_runtime</exec_depend>
+- `<build_depend>message_generation</build_depend>`
+- `<exec_depend>message_runtime</exec_depend>`
 
 In terminal, `cd catkin_ws` and run the command `catkin_make`.
 
-## Section 4: ROS Services
+## Section 4: ROS Services <a name="4"></a>
+[Go to top](#top)
 
-### 4.1 General
+### 4.1 General <a name="4.1"></a>
+[Go to top](#top)
 
-ROS Server, ROS Client. <br>
+2 Nodes: ROS Server, ROS Client. <br>
 Synchronous, bi-directional (request & response message), one-time.
 
 Service is a one-time communication. A client sends a request, and waits for the server to return a response. The client will only wait and not do anything else until the response is received, unless a timeout is used.
 
 Use case: to request the robot to perform a specific action.
 
-### 4.2 Commands
+### 4.2 Commands <a name="4.2"></a>
+[Go to top](#top)
+
 
 `rosservice list` displays the list of services available in the active node. <br>
-`rosservice info /spawn` gives information about the specified service servers during runtime.
+`rosservice info <service>` gives information about the specified service servers during runtime.
 
 `rossrv list` displays the list of services in the workspace.<br>
 `rossrv show <service>` displays all the packages with the specified service. <br>
@@ -438,7 +487,8 @@ e.g. `rosservice call /spawn 7 7 0 turtle2` calls the `/spawn` service, where
 
 This service responds with the spawned turtle's name.
 
-### 4.3 Custom ROS Service: Add 2 Integers
+### 4.3 Custom ROS Service: Add 2 Integers <a name="4.3"></a>
+[Go to top](#top)
 
 __Steps__
 1. Define the service message (service file).
@@ -466,8 +516,7 @@ Update dependencies in CMakeLists.txt <br>
 - add `message_generation` under `find_package`
 - add `file_name.srv` under `add_service_files`
 - `cakin_make` in workspace directory to create the service
-
-3 header files (.h) will be created in the workspace `devel/include/ros_essentials` for the service.
+- Then, 3 header files (.h) will be created in the workspace `devel/include/ros_essentials` for the service.
 
 __Step 2 & 3 Create ROS Service/Client Node__ <br>
 Refer to source files.
@@ -483,9 +532,11 @@ For new python files, allow the python file to be executed. <br>
 
 For new C++ files, modify `add_executable` in the CMakeLists.txt accordingly.
 
-## Section 5: ROS Motion
+## Section 5: ROS Motion <a name="5"></a>
+[Go to top](#top)
 
-### 5.1 Motion Types
+### 5.1 Motion Types <a name="5.1"></a>
+[Go to top](#top)
 
 Linear (x,y,z), Angular. In 2D motion, there is only z-angular for yaw.
 
@@ -502,8 +553,10 @@ Spiral
 - Linear x: f(time)
 - Angular z: constant
 
-### 5.2 Implementation
-Step 1: Understand topics (cmd_vel, pose) and messages to be used (Twist, Pose)
+### 5.2 Implementation <a name="5.2"></a>
+[Go to top](#top)
+
+Understand topics (cmd_vel, pose) and messages to be used (Twist, Pose)
 
 __Divide & Conquer Approach__
 |Step|Description|
@@ -522,9 +575,11 @@ __Logging__ <Br>
 Python: `rospy.loginfo()` <br>
 C++: `ROS_INFO()`
 
-## Section 6: Computer Vision with OpenCV
+## Section 6: Computer Vision with OpenCV <a name="6"></a>
+[Go to top](#top)
 
-### 6.1 Applications
+### 6.1 Applications <a name="6.1"></a>
+[Go to top](#top)
 
 __Image Segmentation__ <br>
 The process of partitioning a digital image into multiple segments. <br>
@@ -553,40 +608,54 @@ __Video/Image Input/Output__ <br>
 Read/write images and video streams.
 
 __Installation__ <br>
-I followed the instructions here to build OpenCV <br>
+I followed the instructions here to build OpenCV. Building allows you to choose the dependencies you need. <br>
 http://www.codebind.com/cpp-tutorial/install-opencv-ubuntu-cpp/
 
-### 6.2 OpenCV (no ROS)
+### 6.2 OpenCV (no ROS) <a name="6.2"></a>
+[Go to top](#top)
 
 numpy is multidimensional array data structure is used to store pixel values of images.
 
-__Executing Python files__ <br>
+#### 6.2.1 Executing Python Files <br> <a name="6.2."></a>
+[Go to top](#top)
+
 Include `#!/usr/bin/env python` at the top of the file. Then, enter `./file_name.py` in the terminal to run the specified file in the current directory.
 
 OR
 
 Enter `python3 file_name.py` in the terminal.
 
-__Open/Save Image__ <br>
+#### 6.2.2 Open/Save Image <br> <a name="6.2.2"></a>
+[Go to top](#top)
+
+Windows are used as placeholders for images and trackbars.
+
+__Read__ <br>
 `color_img = cv2.imread("path/to/img.jpg", CV_LOAD_IMAGE_COLOR)` for colour image. <br>
 `gray_img = cv2.imread("path/to/img.jpg", CV_LOAD_IMAGE_GRAYSCALE)` for grayscale image.
 
-`cv2.namedWindow("window_name", cv2.WINDOW_NORMAL)` to create a window holder for image. The window can be referenced later to be moved, resized, closed, etc. <br>
-`cv2.moveWindow("window_name",x_pos,y_pos)` to move the window to specified location.
-
+__Window Operations__ <br>
+`cv2.namedWindow("window_name", cv2.WINDOW_NORMAL)` to create a window holder for image. The window can be referenced later to be moved, resized, closed, etc.  <br>
+`cv2.moveWindow("window_name",x_pos,y_pos)` to move the window to specified location.  <br>
 `cv2.destroyAllWindows()` to destroy all windows. Usually called after the quit wait key.
 
-`cv2.imshow("window_name",img)` to display image in the specified window. <br>
+__Show__ <br>
+`cv2.imshow("window_name",img)` to display image in the specified window.  <br>
+`stiched_img = np.concatenate((array1,array2,array3),axis=1)` to concatenate the arrays along its length. Use `axis=0` to concatenate along its height. 
+
 Should call `cv2.waitKey(1)` to allow high GUI some time to process the draw requests from `cv2.imshow()`.
 
+__Save__ <br>
 `cv2.imwrite("path/to/file"+img_name+".jpg",img)` to save the image as specified file name at specified path.
 
-`height, length, channels = img.shape` gives the dimensions of the numpy array. Channels are for colour images.<br>
-`img[:,:,0]` to return all the values in the first channel.
-
+__Others__ <br>
+`height, length, channels = img.shape` gives the dimensions of the numpy array. Channels are for colour images.  <br>
+`img[:,:,0]` to return all the values in the first channel.  <br>
 `img.dtype` to obtain image datatype.
 
-__Image Encoding__ <br>
+#### 6.2.3 Image Encoding <br> <a name="6.2.3"></a>
+[Go to top](#top)
+
 - Grayscale 
 - Red, Green, Blue (RGB)
 - Hue, Saturation, Value (HSV)
@@ -607,72 +676,46 @@ OpenCV uses different ranges for HSV. <br>
 `blue,green,red = cv2.split(color_image)` to split image into the 3 channels. <br>
 Then, you can go on to show each channel image.
 
-`stiched_img = np.concatenate((array1,array2,array3),axis=1)` to concatenate the arrays along its length. Use `axis=0` to concatenate along its height.
-
 `gray_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)` to convert color to grayscale. <br>
 `hsv_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2HSV)` to convert color to HSV.
 
-__Video Stream Input__ <br>
+#### 6.2.4 Video Stream Input <br> <a name="6.2.4"></a>
+[Go to top](#top)
+
 `video_capture = cv2.VideoCapture(0)` to open a camera for video capturing. <br>
-`video_capture = cv2.VideoCapture('absolute/path/to/video_fil.mp4')` to open a video file from local directory.
+`video_capture = cv2.VideoCapture('absolute/path/to/video_fil.mp4')` to open a video file from local directory. <br>
+`ret,frame = video_capture.read()` where frame is the image from the video, and ret is the return value. ret becomes false if no frames has been grabbed (camera disconnected/end of video file)
 
 `video_capture.release()` Ensure that the capture object is released subsequently before exiting the script. 
-
-`ret,frame = video_capture.read()` where frame is the image from the video, and ret is the return value. ret becomes false if no frames has been grabbed (camera disconnected, end of video file)
-
 
 
 Use 'Q' button to break the while-loop and exit the script. <br>
 ```python
+# python
 if cv2.waitKey(1) & 0xFF == ord('q'):
     break
 ```
 
-__Drawing__ <br>
+#### 6.2.5 Drawing <br> <a name="6.2.5"></a>
+[Go to top](#top)
+
 Points are represented as tuples: `(x1,y1)`, `(x2,y2)`<br>
 Color is represented in BGR tuple: `(255,0,0)` <br>
 Thickness is an integer: draws filled if negative, outline if positive
 
-`cv2.rectangle(image,pt1,pt2,color,thickness)` to draw a rectangle.
-
+`cv2.rectangle(image,pt1,pt2,color,thickness)` to draw a rectangle. <br>
 `cv2.line(image,pt1,pt2,color,thickness)` to draw a line.
 
 Axes is a tuple: (major_axis_length, minor_axis_length) <br>
-`cv2.ellipse(image,center_pt,axes,angle,startAngle,endAngle,color,thickness)` to draw an ellipse.
-
+`cv2.ellipse(image,center_pt,axes,angle,startAngle,endAngle,color,thickness)` to draw an ellipse.  <br>
 `cv2.circle(image,center_pt,radius,color,thickness)` to draw a circle.
 
 Origin is the bottom-left corer of the text string. <br>
 `cv2.putText(image,text,orgin,font_type,font_size,color,thickness)` to put text on the image.
 
-__CvBridge__ <br>
-The image file produced by ROS (ROS Image Message) is not immediately compatible with the OpenCV format (OpenCV cv::Mat). Thus, CvBridge is needed to do the conversion (bidirectional).
+#### 6.2.6 Thresholding <br> <a name="6.2.6"></a>
+[Go to top](#top)
 
-<img src="./notes_images/cv_bridge_map.png" height=150>
-
-`bridge = CvBridge()` to make a bridge object.
-
-```python
-from cv_bridge import CvBridge, CvBridgeError
-
-# convert ros img_msg to cv_image (e.g. in scubscriber)
-try:
-    cv_image = bridge.imgmsg_to_cv2(ros_image, "bgr8")
-except CvBridgeError as e:
-    print(e)
-  
-# convert cv_image to ros img_msg (e.g. in publisher_)
-try:
-    ros_img = bridge.cv2_to_imgmsg(cv_image, encoding = "passthrough")
-except CvBridgeError as e:
-    print(e)
-```
-OpenCV operations can be applied to cv_image after this step.
-
-`rosrun usb_cam usb_cam_node _pixel_format:= yuyv` to run the usb_cam
-
-
-__Thresholding__ <br>
 Simplest method of image segmentation. <br>
 Take a colour as a threshold to compare against the pixel values. <br>
 
@@ -701,7 +744,9 @@ Adaptive styles
 - ADAPTIVE_THRESH_MEAN_C
 - ADAPTIVE_THRESH_GAUSSIAN_C
 
-__Color Filtering__ <br>
+#### 6.2.7 Color Filtering__ <br> <a name="6.2.7"></a>
+[Go to top](#top)
+
 The process displays only a specific color range in the image. <br>
 This allows for the detection of objects with specific colors. <br>
 HSV is used for filtering because it is more robust against external lighting conditions. <br>
@@ -715,7 +760,9 @@ Algorithm
 
 OpenCV has its own convention to define the ranges of hue, saturation and value.
 
-__Tennis Ball Example__ <br>
+#### 6.2.8 Tennis Ball Example <br> <a name="6.2.8"></a>
+[Go to top](#top)
+
 1. Choose the yellow angle range
 ```python
 yellowLower =(30, 150, 100)
@@ -723,7 +770,9 @@ yellowUpper = (50, 255, 255)
 ```
 2. Saturation and value ranges are can be obtained via trial & error. Generally on the higher side.
 
-__Contour Detection__ <br>
+#### 6.2.9 Contour Detection <br> <a name="6.2.9"></a>
+[Go to top](#top)
+
 Contours: curves with the same color/intensity that join all the continuous points along a boundary
 
 To find the boundaries of objects within image. <br>
@@ -737,7 +786,7 @@ Algorithm
 - Find contours using `cv2.findContours()` on the binary image
 - Process the contours (e.g. area, centroid, perimeter, moment)
 
-Contour Hierarchy <br>
+__Contour Hierarchy__ <br>
 Outer shape: parent, inner shape: child.
 
 Contour Retrieval Modes (RETR: retrieve)
@@ -783,7 +832,37 @@ Steps
 3. Generate contours using the binary image
 4. Draw contours that are sufficiently large
 
-__OpenCV C++ Implementation__ <br>
+## 6.3 OpenCV with ROS <a name="6.3"></a>
+[Go to top](#top)
+
+### 6.3.1 CvBridge <br><a name="6.3.1"></a>
+[Go to top](#top)
+
+The image file produced by ROS (ROS Image Message) is not immediately compatible with the OpenCV format (OpenCV cv::Mat). Thus, CvBridge is needed to do the conversion (bidirectional).
+
+<img src="./notes_images/cv_bridge_map.png" height=150>
+
+`bridge = CvBridge()` to make a bridge object.
+
+```python
+from cv_bridge import CvBridge, CvBridgeError
+
+# convert ros img_msg to cv_image (e.g. in scubscriber)
+try:
+    cv_image = bridge.imgmsg_to_cv2(ros_image, "bgr8")
+except CvBridgeError as e:
+    print(e)
+  
+# convert cv_image to ros img_msg (e.g. in publisher_)
+try:
+    ros_img = bridge.cv2_to_imgmsg(cv_image, encoding = "passthrough")
+except CvBridgeError as e:
+    print(e)
+```
+OpenCV operations can be applied to cv_image after this step.
+
+### 6.3.2 C++ Implementation__ <br> <a name="6.3.2"></a>
+[Go to top](#top)
 
 CMakeList.txt
 ```
@@ -794,6 +873,7 @@ target_link_libraries(read_video_cpp ${catkin_LIBRARIES})
 target_link_libraries(read_video_cpp ${OpenCV_LIBRARIES})
 ```
 
+`rosrun usb_cam usb_cam_node _pixel_format:= yuyv` to run the usb_cam
 
 __OpenCV & ROS C++ Implementation__ <br>
 For C++ OpenCV Implementation with ROS, <br>
@@ -815,9 +895,12 @@ target_link_libraries(image_pub_sub ${catkin_LIBRARIES})
 target_link_libraries(image_pub_sub ${OpenCV_LIBRARIES})
 ```
 
-## Section 7: Laser Range Finders
+## Section 7: Laser Range Finders <a name="7"></a>
+[Go to top](#top)
 
-### 7.1 Applications
+### 7.1 Applications <a name="7.1"></a>
+[Go to top](#top)
+
 Laser scanners measure the distances to obstacles using laser beams.
 
 - Simultaneous Localisation and Mapping (SLAM): building maps
@@ -851,7 +934,8 @@ RGB Depth (RGBD) Cameras
 - Orbbec Astra S, USD 170+
 - Intel RealSense Camera R200, USD 170+
 
-### 7.2 Connecting RGBD Camera as Laser Scanner
+### 7.2 Connecting RGBD Camera as Laser Scanner <a name="7.2"></a>
+[Go to top](#top)
 
 Need to run the drivers that connect to the RGBD Cameras and publish as ROS messages. <br>
 `roslaunch openni2_launch openni2.launch` <br>
@@ -881,10 +965,12 @@ rosrun image_view image_view image:=/camera/rgb/image_raw
 rosrun image_view image_view image:=/camera/depth/image_raw
 ```
 
-`rosrun depthimage_to_laserscan depthimage_to_laserscan image:=camera/depth/image_raw` to convert RGBD images to laser scanner topic (/scan)
+`rosrun depthimage_to_laserscan depthimage_to_laserscan image:=camera/depth/image_raw` to convert RGBD images to laser scanner topic (`/scan`)
 
 
-__rviz ROS Visualisation__ <br>
+### 7.3 ROS Visualisation (RViz) <br> <a name="7.3"></a>
+[Go to top](#top)
+
 - `rosrun rviz rviz` <br>
 - Select fixed frame
 - Select 'Add' to add new 'LaserScan' topic
@@ -924,7 +1010,9 @@ Filter through the ranges array to discard the `nan` values.
 `ranges = [x for x in ranges if not math.isnan(x)]`
 
 
-__C++ Implementation__ <br>
+### 7.4 C++ Implementation <a name="7.4"></a>
+[Go to top](#top)
+
 Can use header files to condense the main source code. <br>
 Edit the CMakeList to include the newly added library (laserscan_lib and utility_lib).
 ```
@@ -942,7 +1030,8 @@ target_link_libraries(scan_subscriber_cpp laserscan_lib)
 ```
 
 
-## Section 8: ROS Serial
+## Section 8: ROS Serial <a name="8"></a>
+[Go to top](#top)
 
 There is a needed for a communication protocol between hardware and ROS. <br>
 ROS Serial allows for easy integration of micro-controllers and embedded systems into ROS. <br>
@@ -958,7 +1047,8 @@ No need for custom drivers and communication protocol (in C).
 - ros_teensy
 
 
-### 8.1 rosserial_arduino
+### 8.1 rosserial_arduino <a name="8.1"></a>
+[Go to top](#top)
 
 To run the Arduino IDE,
 ```
@@ -966,26 +1056,32 @@ cd arduino
 ./arduino
 ```
 
-Install rosserial arduino and rosserial
+To install rosserial arduino and rosserial
 ```
 sudo apt-get install ros-noetic-rosserial-arduino
 sudo apt-get install ros-noetic-rosserial
 ```
 
-Install ROS libraries in Arduino. Run `roscore` in one window. In another window:
+To install ROS libraries in Arduino. Run `roscore` in one window. In another window:
 ```
 cd arduino/libraries/
 rm -rf ros_lib
 rosrun rosserial_arduino make_libraries.py .
 ```
 
-__rosserial_python__ <br>
+### 8.2 rosserial_python <a name="8.2"></a>
+[Go to top](#top)
+
 A python-based implementation (recommended for PC usage)
 
-__rosserial_server__ <br>
+### 8.3 rosserial_server <a name="8.3"></a>
+[Go to top](#top)
+
 A C++ implementation, has some limitations compared to rosserial_python, but recommended for high-performance applications
 
-__serial_node__ <br>
+### 8.4 serial_node <a name="8.4"></a>
+[Go to top](#top)
+
 Interface/bridge between rosserial_arduino deployed on Arduino platform and ROS ecosystem on the workstation. <br>
 Arduino can now act as a ROS node.
 
@@ -1000,10 +1096,14 @@ Initialise these fields in the Arduino code to send a complete/valid ROS msg.
 
 In the case of an ultrasound sensor, `sensor_msgs/Range` is used.
 
-__rosserial Publisher__ <br>
+### 8.5 rosserial Publisher <a name="8.5"></a>
+[Go to top](#top)
+
 Refer to the hello world tutorial.
 
-__rosserial Subscriber__ <br>
+### 8.6 rosserial Subscriber <a name="8."></a>
+[Go to top](#top)
+
 Refer to the blink tutorial. 
 
 Check the port number by going to Arduino IDE > Tools > Port '/dev/ttyACM1 (Arduino/Genuino Uno)' <br>
@@ -1028,7 +1128,8 @@ alias tb3house='roslaunch turtlebot3_gazebo turtlebot3_house.launch'
 ```
 
 
-## Section 9: ROS Navigation
+## Section 9: ROS Navigation <a name="9"></a>
+[Go to top](#top)
 
 Map files are `.yaml` and `.pgm`. <br>
 In the `.yaml` file, the first line should be <br>
