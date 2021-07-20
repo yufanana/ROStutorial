@@ -6,12 +6,69 @@ This documentation was produced from the ROS for Beginners: Basics, Motion and O
 </br>
 ____
 
-## Section 1: ROS Concepts
+## Table of Contents <a name="top"></a>
+
+1. [ROS Concepts](#1)<br>
+    1.1 [Publisher/Subscriber](#1.1) <br>
+    1.2 [ROS Services](#1.2) <br>
+    1.3 [ROS ActionLib](#1.3) <br>
+    1.4 [ROS Computation Graph](#1.4) <br>
+    1.5 [ROS Limitations](#1.5) <br>
+    1.6 [ROS Benefits](#1.6) <br>
+2. [Set Up](#2) <br>
+    2.1 [Installation](#2.1) <br>
+    2.2 [Workspace](#2.2) <br>
+    2.3 [Packages](#2.3) <br>
+    2.4 [Launch Files](#2.4) <br>
+    2.5 [ROS Network Configuration](#2.5) <br>
+3. [ROS Messages](#3) <br>
+    3.1 [ROS Nodes](#3.1) <br>
+    3.2 [Computation Graph](#3.2) <br>
+    3.3 [Message Definition](#3.3) <br>
+    3.4 [Create Publisher/Subscriber Files](#3.4) <br>
+    3.5 [Custom Messages](#3) <br>
+4. [ROS Services](#4) <br>
+    4.1 [General](#4.1) <br>
+    4.2 [Commands](#4.2) <br>
+    4.3 [Custom ROS Service: Add 2 Integers](#4.3) <br>
+5. [ROS Motion](#5) <br>
+    5.1 [Motion Types](#5) <br>
+    5.2 [Implementation](#5) <br>
+6. [Computer Vision with OpenCV](#6) <br>
+    6.1 [Applications](#6.1) <br>
+    6.2 [OpenCV](#6.2) <br>
+        6.2.1 [Executing Python Files](#6.2.1) <br>
+        6.2.2 [Open/Save Image](#6.2.2) <br>
+        6.2.3 [Image Encoding](#6.2.3) <br>
+        6.2.4 [Video Stream Input](#6.2.4) <br>
+        6.2.5 [Drawing](#6.2.5) <br>
+        6.2.6 [Thresholding](#6.2.6) <br>
+        6.2.7 [Color Filtering](#6.2.7) <br>
+        6.2.8 [Tennis Ball Example](#6.2.8) <br>
+        6.2.9 [Contour Detection](#6.2.9) <br>
+    6.3 [OpenCV with ROS](#6.3) <br>
+        6.3.1 [C++ Implementation](#6.3.1) <br>
+7. [Laser Range Finders](#7) <br>
+    7.1 [Applications](#7.1) <br>
+    7.2 [Connecting RGBD Camera](#7.1) <br>
+    7.3 [ROS Visualisation RViz](#7.2) <br>
+    7.4 [C++ Implementation](#7.3) <br>
+8. [ROS Serial](#8.1) <br>
+    8.1 [rosserial_arduino](#8.1) <br>
+    8.2 [rosserial_python](#8.2) <br>
+    8.3 [rosserial_server](#8.3) <br>
+    8.4 [serial_node](#8.4) <br>
+    8.5 [rosserial Publisher](#8.5) <br>
+    8.6 [rosserial Subscriber](#8.6) <br>
+9. [ROS Navigation](#9) <br>
+
+
+## Section 1: ROS Concepts <a name="1"></a>
 
 There are 3 communication patterns. <br>
 TCPROS layers are established between the nodes with the help of the master node before communication can begin.
 
-### 1.1 Publisher/Subscriber
+### 1.1 Publisher/Subscriber <a name="1.1"></a>
 Publisher ->  (topic) -> Subscriber </br>
 It supports 1:N, N:1, N:N </br>
 Possible topics: location (x, y, theta), obstacle (x, y), temperature, pressure.
@@ -45,13 +102,13 @@ Start a new terminal window to run other ROS commands.
 
 `rosrun rqt_graph rqt_graph` displays the ROS computation graph.
 
-### 1.5 Limitations of ROS
+### 1.5 ROS Limitations
 Not able to control a swarm of robots. (?)</br>
 Not real-time, where all processes have the same priority. </br>
 It requires a reliable network (bandwidth). </br>
 It has a possible single point of failure. </br>
 
-### 1.6 Benefits of ROS
+### 1.6 ROS Benefits
 Gives the user the ability to control the state of the robot, and the ability to read the state of the robot anytime.
 
 ## Section 2: Set Up
@@ -93,7 +150,7 @@ To create a new package, `cd catkin_ws/src` <br>
 `catkin_create_pkg <package_name> <depend1> <depend2d> <depend3>` <br>
 e.g. `catkin_create_pkg <package_name> std_msgs rospy roscpp`
 
-### 2.4 Launch File
+### 2.4 Launch Files
 Launches/rosrun multiple nodes instead of opening many terminals and typing in the command.
 
 Can use `roslaunch package_name file_name.launch` to skip the roscore command.
@@ -318,7 +375,7 @@ Used by `catkin_make`
 <exec_depend>std_msgs</exec_depend>
 ```
 
-### 3.5 Custom Message
+### 3.5 Custom Messages
 Create a `msg` folder in the ROS package folder. <br>
 Create a `.msg` file and add the fields using a text editor. <br>
 Refer to [ROS Wiki](wiki.ros.org/msg) for the built-in data types. 
@@ -465,9 +522,9 @@ __Logging__ <Br>
 Python: `rospy.loginfo()` <br>
 C++: `ROS_INFO()`
 
-## Section 5: Computer Vision with OpenCV
+## Section 6: Computer Vision with OpenCV
 
-### 5.1 Applications
+### 6.1 Applications
 
 __Image Segmentation__ <br>
 The process of partitioning a digital image into multiple segments. <br>
@@ -499,7 +556,7 @@ __Installation__ <br>
 I followed the instructions here to build OpenCV <br>
 http://www.codebind.com/cpp-tutorial/install-opencv-ubuntu-cpp/
 
-### 5.2 OpenCV (no ROS)
+### 6.2 OpenCV (no ROS)
 
 numpy is multidimensional array data structure is used to store pixel values of images.
 
@@ -758,9 +815,9 @@ target_link_libraries(image_pub_sub ${catkin_LIBRARIES})
 target_link_libraries(image_pub_sub ${OpenCV_LIBRARIES})
 ```
 
-## Section 6: Laser Range Finders
+## Section 7: Laser Range Finders
 
-### 5.1 Applications
+### 7.1 Applications
 Laser scanners measure the distances to obstacles using laser beams.
 
 - Simultaneous Localisation and Mapping (SLAM): building maps
@@ -794,7 +851,7 @@ RGB Depth (RGBD) Cameras
 - Orbbec Astra S, USD 170+
 - Intel RealSense Camera R200, USD 170+
 
-### 5.2 Connecting RGBD Camera as Laser Scanner
+### 7.2 Connecting RGBD Camera as Laser Scanner
 
 Need to run the drivers that connect to the RGBD Cameras and publish as ROS messages. <br>
 `roslaunch openni2_launch openni2.launch` <br>
@@ -885,7 +942,7 @@ target_link_libraries(scan_subscriber_cpp laserscan_lib)
 ```
 
 
-## Section 7: ROS Serial
+## Section 8: ROS Serial
 
 There is a needed for a communication protocol between hardware and ROS. <br>
 ROS Serial allows for easy integration of micro-controllers and embedded systems into ROS. <br>
@@ -901,7 +958,7 @@ No need for custom drivers and communication protocol (in C).
 - ros_teensy
 
 
-### rosserial_arduino
+### 8.1 rosserial_arduino
 
 To run the Arduino IDE,
 ```
@@ -971,7 +1028,7 @@ alias tb3house='roslaunch turtlebot3_gazebo turtlebot3_house.launch'
 ```
 
 
-## Section 8: ROS Navigation
+## Section 9: ROS Navigation
 
 Map files are `.yaml` and `.pgm`. <br>
 In the `.yaml` file, the first line should be <br>
