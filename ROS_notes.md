@@ -60,21 +60,38 @@ Follow the instructions on [ROS installation wiki](http://wiki.ros.org/ROS/Insta
 Look out for the duration of long-term support.
 
 ### 2.2 Workspace
-Follow the instructions on [ROS workspace wiki](https://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment). </br>
-Enter the command `gedit .bashrc` <br>
-Then, ensure that `source /opt/ros/noetic/setup.bash` is already included near the end.
+Follow the instructions on [ROS workspace wiki](https://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment).
+
+The `setup.bash` file in the default ROS installation folder needs to be executed before running ROS applications in the terminal. <br>
+To run `setup.bash` automatically each time a new terminal is opened, 
+- In a terminal, enter the command `gedit .bashrc`. `.bashrc` is executed every time a terminal is opened.
+- Add `source /opt/ros/noetic/setup.bash` near the end of the file.
+- Save and open a new terminal.
+- Enter `roscore` to check whether it works.
+
+By convention, workspaces are found in the home directory. <br>
+To create a new workspace,
+```
+mkdir -p ~/name_ws/src
+cd name_ws
+catkin_make
+```
 
 To activate the catkin workspace, you will need to source/access the `setup.bash` file. </br>
-To do so, enter the command `gedit .bashrc` then add `source /home/yufanana/catkin_ws/devel/setup.bash` into the file, where `yufanana` should be changed to your path.
+- In a terminal, enter the command `gedit .bashrc`. `.bashrc` is executed every time a terminal is opened.
+- Add `source /home/user_name/name_ws/devel/setup.bash`
+- Save and open a new terminal
+- Enter `roscd` to enter the default ROS workspace.
 
 Next, `source .bashrc` to active catkin workspace as default workspace.
 
 ### 2.3 Packages
+Packages are like ROS projects. <br>
 catkin packages should contain `package.xml` & `CMakeLists.txt` in its own folder. 
 
 To create a new package, `cd catkin_ws/src` <br>
 `catkin_create_pkg <package_name> <depend1> <depend2d> <depend3>` <br>
-`catkin_create_pkg <package_name> std_msgs rospy ros cpp`
+e.g. `catkin_create_pkg <package_name> std_msgs rospy roscpp`
 
 ### 2.4 Launch File
 Launches/rosrun multiple nodes instead of opening many terminals and typing in the command.
@@ -943,3 +960,14 @@ Steps to run the program
 4. `rostopc echo `
 
 cd ros_essentials/src/topic03_perception
+
+Aliases used <br>
+```
+alias burger='export TURTLEBOT3_MODEL=burger' 
+alias waffle='export TURTLEBOT3_MODEL=waffle'
+alias tb3fake='roslaunch turtlebot3_fake turtlebot3_fake.launch'
+alias tb3teleop='roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch'
+alias tb3='roslaunch turtlebot3_gazebo turtlebot3_empty_world.launch'
+alias tb3maze='roslaunch turtlebot3_gazebo turtlebot3_world.launch'
+alias tb3house='roslaunch turtlebot3_gazebo turtlebot3_house.launch'
+```
