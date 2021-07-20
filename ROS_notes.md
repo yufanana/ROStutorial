@@ -9,8 +9,8 @@ ____
 ## Table of Contents <a name="top"></a>
 
 1. [ROS Concepts](#1)<br>
-    1.1 [Publisher/Subscriber](#1.1) <br>
-    1.2 [ROS Services](#1.2) <br>
+>> 1.1 [Publisher/Subscriber](#1.1) <br>
+>>>    1.2 [ROS Services](#1.2) <br>
     1.3 [ROS ActionLib](#1.3) <br>
     1.4 [ROS Computation Graph](#1.4) <br>
     1.5 [ROS Limitations](#1.5) <br>
