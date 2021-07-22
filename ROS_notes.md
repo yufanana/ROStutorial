@@ -985,8 +985,11 @@ __Initial Robot Location__
 - The robot does not know its initial location.
 - Use 2D Pose Estimate in RViz to select the location and set the bearing.
 
-__Frame__
-A frame is a reference that is used to localise objects/robots.
+### Frame__
+A frame is a reference that is used to localise objects/robots. <br>
+Frame transformation is used to convert from one frame to another.
+
+Robot coordinate frame, world coordinate frame
 
 - Enable grid view in RViz by checking 'Grid'
 - Centre of the grid is the origin (0,0)
@@ -999,4 +1002,20 @@ A frame is a reference that is used to localise objects/robots.
 
 Quaternion is used to describe orientation (x,y,z,w).
 
+### Pose
+Pose consists of (x,y) coordinate and orientation of the robot. <br>
+The orientation is measued as the angle (theta) from the positive horizontal axis.
 
+### Transformation
+Combination of translation and rotation. <br>
+Goal is to establish a relationship between a pose in one frame and a pose in another frame.
+
+__Translation__ <br>
+Sum of 2 translations: in x-direction, in y-direction. <br>
+Pure translation (if no orientation).
+
+<img src="./notes_images/pure_translation.jpeg" height=200>
+
+
+__Rotation__ <br>
+Pure rotation (if no translation). <br>
