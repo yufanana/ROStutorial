@@ -12,19 +12,19 @@ import tf
 #callback function the odom pose (position+orientation) of the robot 
 def odomPoseCallback(odom_msg):
 
-    print "odom pose callback"
+    print("odom pose callback")
     #get the position of the robot
-    print 'x = ',odom_msg.pose.pose.position.x
-    print 'y = ', odom_msg.pose.pose.position.y 
+    print('x = ',odom_msg.pose.pose.position.x)
+    print('y = ', odom_msg.pose.pose.position.y) 
     #get the velocity of the robot
-    print 'vx = ',odom_msg.twist.twist.linear.x
-    print 'vz = ',odom_msg.twist.twist.angular.z
+    print('vx = ',odom_msg.twist.twist.linear.x)
+    print('vz = ',odom_msg.twist.twist.angular.z)
 
     #print the values of the orientation in quaternion
-    print 'qx=',odom_msg.pose.pose.orientation.x
-    print 'qy=',odom_msg.pose.pose.orientation.y
-    print 'qz=',odom_msg.pose.pose.orientation.z
-    print 'qw=',odom_msg.pose.pose.orientation.w
+    print('qx=',odom_msg.pose.pose.orientation.x)
+    print('qy=',odom_msg.pose.pose.orientation.y)
+    print('qz=',odom_msg.pose.pose.orientation.z)
+    print('qw=',odom_msg.pose.pose.orientation.w)
     
     #formulate a quaternion as a list
     quaternion = (
@@ -39,13 +39,12 @@ def odomPoseCallback(odom_msg):
     roll = rpy[0]
     pitch = rpy[1]
     yaw = rpy[2]
+    # roll & pitch will always be zero in a 2D-frame
 
     #print the roll, pitch and yaw
-    print math.degrees(roll), ' ', math.degrees(pitch), ' ', math.degrees(yaw)
-    print 'the orientation of the robot is: ',math.degrees(yaw)
+    print(math.degrees(roll), ' ', math.degrees(pitch), ' ', math.degrees(yaw))
+    print('Robot Heading: ',math.degrees(yaw))
  
-
-
 if __name__ == '__main__':
     try:
         #init the node

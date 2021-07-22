@@ -1164,7 +1164,7 @@ Quaternion is used to describe orientation (x,y,z,w).
 Pose consists of (x,y) coordinate and orientation of the robot. <br>
 The orientation is measued as the angle (theta) from the positive horizontal axis.
 
-### Transformation
+### 2D Transformation
 Combination of translation and rotation. <br>
 Goal is to establish a relationship between a pose in one frame and a pose in another frame.
 
@@ -1174,6 +1174,117 @@ Pure translation (if no orientation).
 
 <img src="./notes_images/pure_translation.jpeg" height=200>
 
+<img src="./notes_images/pure_translation_2.jpg" height=200>
 
 __Rotation__ <br>
 Pure rotation (if no translation). <br>
+Angle is measured coutnter clockwise from the positive horizontal axis.
+
+<img src="./notes_images/pure_rotation.jpeg" height=200>
+
+<img src="./notes_images/pure_rotation_2.jpg" height=200>
+
+__Transformation__ <br>
+Translation + Rotation <br>
+
+<img src="./notes_images/transformation_graph.jpg" height=200>
+
+<img src="./notes_images/transformation_matrix.jpg" height=200>
+
+### 3D Frame
+Z-direction: right hand grip rule, swipe fingers from x to y. <br>
+
+<img src="./notes_images/3d_frame.jpg" height=200>
+
+Roll: rotation on x-axis, aka bank <br>
+Pitch: rotation on y-axis, aka attitude <br>
+Yaw: rotation on z-axis, aka heading 
+
+One rotation matrix for each axis.
+<img src="./notes_images/3d_rotation_matrix.jpg" height=200>
+R = Rz(alpha) * Ry(beta) * Rx(gamma)
+
+<img src="./notes_images/3d_transformation_matrix.jpg" height=200>
+
+### 3D Orientation
+1. Three-angle represenation: euler rotation, cardan rotation 
+2. Rotation about arbitary vector
+3. Quaternions
+
+Quarternion is the main method in ROS. <br>
+It is written as a scalar and a vector.
+
+```
+q = s < v1 | v2 | v3 >
+q = s + v
+q = s + v1*i + v2*j + v3*k
+where i^2 = j^2 = k^2 = ijk = -1
+
+q0 = qw = s = w
+q1 = qx = v1 = x
+q2 = qy = v2 = y
+q3 = qz = v3 = z
+```
+Benefits of Quaternions
+- Compared to Euler, it is simpler to compose and avoids gimbal lock.
+- Compared to rotation matrices, they are more compact, more numerically stable, more efficient.
+- Applied in CV, robotics, navigation, molecular dynamics, flight dynamics, satellite orbital mechanics, crystallographic texture analysis
+
+## TF Package in ROS
+
+Transformation library. <br>
+A robot is a collection of frames attached to different joints.
+
+<img src="./notes_images/robot_frame.jpg" height=200>
+
+Robot frames are defined in an XML file in the Unified Robot Description Format (URDF).<br>
+Transformation matrices are defined in the URDF file.
+
+### TF Package Nodes
+
+Frames can be
+- published by a broadcaster node
+- subscribed by a ROS node that listens to the frames
+
+`rosrun tf view_frames` visualises the full tree of coordinate transforms <br>
+Global, parent, child frame <br>
+Global map frame, odom frame, base_footprint, etc.
+
+`rosrun tf tf_monitor` monitors transformations between frames
+
+`rosrun tf tf_echo source_frame target_frame` prints specified transform to screen
+
+`roswtf` helps track down problems with tf, using the tfwtf plugin
+
+`static_transform_publisher` is a cmd line tool to send static transforms
+
+
+### TF Python Implementation
+
+```python
+quaternion = tf.transformations.quaternion_from_euler(roll,pitch,yaw)
+rpy = tf.transformations.euler_from_quaternion(quaternion)
+```
+
+Similarly, the file can be executed as a ROS node.
+```
+roscore
+rosrun ros_navigation tf_rotation_conversion.py
+```
+
+__Odom Position Message Format__ <br>
+- Location w.r.t odom frame
+- nav_msgs/Odometry Message 
+- geometry_msgs/Quaternion
+
+__AMCL_POSE Position Message Format__ <br>
+- Global position w.r.t. the map frame
+- geometry_msgs/PoseWithCovarianceStamped Message
+- geometry_msgs/Quaternion
+
+
+```
+roscore
+roslaunch turtlebot3_gazebo turtlebot3_house.launch
+roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=/path/to/map.yaml
+```

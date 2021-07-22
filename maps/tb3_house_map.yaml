@@ -1,4 +1,4 @@
-image: /home/yufanana/catkin_ws/src/ros_navigation/maps/tb3_house_map.pgm
+image: /home/yufanana/catkin_ws/src/maps/tb3_house_map.pgm
 resolution: 0.050000
 origin: [-10.000000, -10.000000, 0.000000]
 negate: 0
