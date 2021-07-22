@@ -1172,7 +1172,7 @@ __Translation__ <br>
 Sum of 2 translations: in x-direction, in y-direction. <br>
 Pure translation (if no orientation).
 
-<img src="./notes_images/pure_translation.jpeg" height=200>
+<img src="./notes_images/pure_translation.jpg" height=200>
 
 <img src="./notes_images/pure_translation_2.jpg" height=200>
 
@@ -1180,7 +1180,7 @@ __Rotation__ <br>
 Pure rotation (if no translation). <br>
 Angle is measured coutnter clockwise from the positive horizontal axis.
 
-<img src="./notes_images/pure_rotation.jpeg" height=200>
+<img src="./notes_images/pure_rotation.jpg" height=200>
 
 <img src="./notes_images/pure_rotation_2.jpg" height=200>
 
@@ -1201,7 +1201,9 @@ Pitch: rotation on y-axis, aka attitude <br>
 Yaw: rotation on z-axis, aka heading 
 
 One rotation matrix for each axis.
+
 <img src="./notes_images/3d_rotation_matrix.jpg" height=200>
+
 R = Rz(alpha) * Ry(beta) * Rx(gamma)
 
 <img src="./notes_images/3d_transformation_matrix.jpg" height=200>
