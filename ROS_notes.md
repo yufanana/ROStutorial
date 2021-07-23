@@ -1327,3 +1327,12 @@ roscore
 roslaunch turtlebot3_gazebo turtlebot3_house.launch
 roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=/path/to/map.yaml
 ```
+
+### TF Command Line and Utilities
+
+`rosrun tf view_frames` will produce a pdf file illustrating the frames.
+
+`rostopic echo tf` shows the existing frames, parent/child relations & transformations.
+
+`rostopic info tf` <br>
+`rosmsg show tf2_msgs/TFMessage`
