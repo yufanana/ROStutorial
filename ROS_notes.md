@@ -137,6 +137,43 @@ Gives the user the ability to control the state of the robot, and the ability to
 Follow the instructions on [ROS installation wiki](http://wiki.ros.org/ROS/Installation_). </br>
 Look out for the duration of long-term support.
 
+__Installation on RPi 4__ <br>
+The instructions below are a summary of the steps from [here](https://varhowto.com/install-ros-noetic-raspberry-pi-4/).
+```console
+# Add offical ROS Debian repo
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu buster main" > /etc/apt/sources.list.d/ros-noetic.list'
+
+# Add official ROS key
+sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+
+# Update ROS package index
+sudo apt update
+
+# Install build dependencies
+sudo apt-get install -y python-rosdep python-rosinstall-generator python-wstool python-rosinstall build-essential cmake
+
+# Initialize rosdep 
+sudo rosdep init
+rosdep update
+
+# Create catkin workspace
+mkdir ~/ros_catkin_ws
+cd ~/ros_catkin_ws
+
+# Generate a list of Noetic dependencies
+rosinstall_generator ros_comm --rosdistro noetic --deps --wet-only --tar > noetic-ros_comm-wet.rosinstall
+
+# Fetch remote repos specified in the .rosinstall file
+wstool init src noetic-ros_comm-wet.rosinstall
+
+# Instal system dependencies
+rosdep install -y --from-paths src --ignore-src --rosdistro noetic -r --os=debian:buster
+
+# Compile Noetic Packages
+sudo src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/noetic -j1 -DPYTHON_EXECUTABLE=/usr/bin/python3
+
+```
+
 ### 2.2 Workspace <a name="2.2"></a>
 [Go to top](#top)
 
