@@ -1204,7 +1204,7 @@ __Initial Robot Location__
 - The robot does not know its initial location.
 - Use 2D Pose Estimate in RViz to select the location and set the bearing.
 
-### Frame__
+### 9.1 Frame__
 A frame is a reference that is used to localise objects/robots. <br>
 Frame transformation is used to convert from one frame to another.
 
@@ -1221,11 +1221,11 @@ Robot coordinate frame, world coordinate frame
 
 Quaternion is used to describe orientation (x,y,z,w).
 
-### Pose
+### 9.2 Pose
 Pose consists of (x,y) coordinate and orientation of the robot. <br>
 The orientation is measued as the angle (theta) from the positive horizontal axis.
 
-### 2D Transformation
+### 9.3 2D Transformation
 Combination of translation and rotation. <br>
 Goal is to establish a relationship between a pose in one frame and a pose in another frame.
 
@@ -1252,7 +1252,7 @@ Translation + Rotation <br>
 
 <img src="./notes_images/transformation_matrix.jpg" height=200>
 
-### 3D Frame
+### 9.4 3D Frame
 Z-direction: right hand grip rule, swipe fingers from x to y. <br>
 
 <img src="./notes_images/3d_frame.jpg" height=200>
@@ -1269,7 +1269,7 @@ R = Rz(alpha) * Ry(beta) * Rx(gamma)
 
 <img src="./notes_images/3d_transformation_matrix.jpg" height=200>
 
-### 3D Orientation
+### 9.5 3D Orientation
 1. Three-angle represenation: euler rotation, cardan rotation 
 2. Rotation about arbitary vector
 3. Quaternions
@@ -1293,7 +1293,7 @@ Benefits of Quaternions
 - Compared to rotation matrices, they are more compact, more numerically stable, more efficient.
 - Applied in CV, robotics, navigation, molecular dynamics, flight dynamics, satellite orbital mechanics, crystallographic texture analysis
 
-## TF Package in ROS
+### 9.6 TF Package in ROS
 
 Transformation library. <br>
 A robot is a collection of frames attached to different joints.
@@ -1322,7 +1322,7 @@ Global map frame, odom frame, base_footprint, etc.
 `static_transform_publisher` is a cmd line tool to send static transforms
 
 
-### TF Python Implementation
+### 9.7 TF Python Implementation
 
 ```python
 quaternion = tf.transformations.quaternion_from_euler(roll,pitch,yaw)
@@ -1352,7 +1352,7 @@ roslaunch turtlebot3_gazebo turtlebot3_house.launch
 roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=/path/to/map.yaml
 ```
 
-### TF Command Line and Utilities
+### 9.8 TF Command Line and Utilities
 
 `rosrun tf view_frames` will produce a pdf file illustrating the frames.
 
