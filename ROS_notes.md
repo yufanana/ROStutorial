@@ -71,7 +71,13 @@ ____
     9.6 [TF Package in ROS](#9.6) <br>
     9.7 [TF Python Implementation](#9.7) <br>
     9.8 [TF Command Line & Utilities](#9.8) <br>
- 
+    9.9 [Static Transform Publisher](#9.9) <br>
+10. [Map Navigation](#10) <br>
+    10.1 [Introduction](#10.1) <br>
+    10.2 [SLAM](#10.2) <br>
+    10.3 [Map-based Navigation](#10.3) <br>
+    10.4 [ROS Node for Navigation](#10.4) <br>
+    10.5 [Robot Setup](#10.5) <br>
 
 __Quick Tips for Terminal Command__<br>
 After entering a keyword, *double tab* to view all the possible commands.
@@ -1398,7 +1404,8 @@ rosrun tf2_tools view_frames.py
 `rostopic info tf` <br>
 `rosmsg show tf2_msgs/TFMessage`
 
-### Static Transform Publisher
+### Static Transform Publisher <a name="9.9"></a>
+[Go to top](#top)
 
 To establish transformations between 2 frames.
 
@@ -1409,9 +1416,11 @@ To establish transformations between 2 frames.
 
 OR, use a .launch file to create a transformation.
 
-## Section 10 Map Navigation
+## Section 10 Map Navigation <a name="10"></a>
+[Go to top](#top)
 
-### 10.1 Introduction
+### 10.1 Introduction <a name="10.1"></a>
+[Go to top](#top)
 __Map-based navigation__: loads a map, robot has knowledge of all static obstacles
 
 __Reactive navigation__: uses local information collected by sensors
@@ -1422,7 +1431,8 @@ Mapping: to recognize where it has been moving around so far
 
 Motion/Path Planning: requires well-defined target position with appropriate addressing scheme 
 
-### 10.2 SLAM (Simultaneous Localization and Mapping)
+### 10.2 SLAM (Simultaneous Localization and Mapping) <a name="10.2"></a>
+[Go to top](#top)
 Process of building a map using range sensors while the robot explores an unknown area. <br>
 Sensor fusion: uses filtering techniques like Kalman/particle filter.
 
@@ -1455,7 +1465,8 @@ __Occupancy Grid Map__
 
 Map quality is largely dependent on scanner quality (FOV and range).
 
-### 10.3 Map-based Navigation
+### 10.3 Map-based Navigation <a name="10.3"></a>
+[Go to top](#top)
 
 1. Start the turtlebot simulation in Gazebo
     - `roslaunch turtlebot3_gazebo turtlebot3_house.launch`
@@ -1490,7 +1501,8 @@ In the `turtbot3_navigation.launch`, <br>
 - `move_base.launch` to launch the ROS node that implements global and local path planner.
 - `turtlebot3_navigation.rviz` to start the RViz application
 
-### 10.4 ROS Node for Navigation
+### 10.4 ROS Node for Navigation <a name="10.4"></a>
+[Go to top](#top)
 
 Define goal location in cartesian coordinates 
 - Can be done more accurately in RViz using 2D Pose Estimate
@@ -1502,7 +1514,8 @@ ActionLib is used for navigation
 - Able to receive feedback about robot state
 - whereas ROS Services will block the robot
 
-### 10.5 Robot Setup
+### 10.5 Robot Setup <a name="10.5"></a>
+[Go to top](#top)
 
 <img src="./notes_images/robot_setup.jpg" height=200>
 
