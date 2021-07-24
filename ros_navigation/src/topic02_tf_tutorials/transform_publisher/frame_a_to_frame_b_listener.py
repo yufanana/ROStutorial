@@ -11,6 +11,7 @@ if __name__ == '__main__':
     listener = tf.TransformListener()
     rate = rospy.Rate(1.0)
     listener.waitForTransform('/frame_a', '/frame_b', rospy.Time(), rospy.Duration(4.0))
+    # waits for a maximum of 4s
     
     while not rospy.is_shutdown():
         try:
@@ -20,9 +21,8 @@ if __name__ == '__main__':
 
         quaternion = rot
         rpy=tf.transformations.euler_from_quaternion(quaternion)
-        print 'transformation between frame_a and frame_b detected'
-        print 'translation vector: (',trans[0],',',trans[1],',',trans[2],')'
-        print 'rotation angles: roll=',rpy[0],' pitch=',rpy[1],' yaw=',rpy[2]
-
+        print("transformation between frame_a and frame_b detected")
+        print("translation vector: (",trans[0],',',trans[1],',',trans[2])
+        print("rotation angles: roll=",rpy[0],' pitch=',rpy[1],' yaw=',rpy[2])
 
         rate.sleep()

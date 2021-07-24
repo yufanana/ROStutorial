@@ -645,15 +645,17 @@ __Video/Image Input/Output__ <br>
 Read/write images and video streams.
 
 __Installation__ <br>
-I followed the instructions here to build OpenCV. Building allows you to choose the dependencies you need. <br>
-http://www.codebind.com/cpp-tutorial/install-opencv-ubuntu-cpp/
+I followed the instructions [here](http://www.codebind.com/cpp-tutorial/install-opencv-ubuntu-cpp/) to build OpenCV. Below is a summary of the instructions in the link. Building allows you to choose the dependencies you need. [Here](https://www.pyimagesearch.com/2019/09/16/install-opencv-4-on-raspberry-pi-4-and-raspbian-buster/) is a supplementary link for RPi. <br>
 
 ```
 # Update
 $ sudo apt-get update && sudo apt-get upgrade
 
 # Install dependencies
-$ sudo apt-get install build-essential cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python3.5-dev python3-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff5-dev libdc1394-22-dev libeigen3-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev sphinx-common libtbb-dev yasm libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenexr-dev libgstreamer-plugins-base1.0-dev libavutil-dev libavfilter-dev libavresample-dev libopencv-dev
+$ sudo apt-get install build-essential cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python3.5-dev python3-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff5-dev libdc1394-22-dev libeigen3-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev sphinx-common libtbb-dev yasm libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenexr-dev libgstreamer-plugins-base1.0-dev libavutil-dev libavfilter-dev libavresample-dev libopencv-dev 
+
+# Additional dependencies
+libatlas-base-dev gfortran libhdf5-dev libhdf5-serial-dev libhdf5-103 libqtgui4 libqtwebkit4 libqt4-test python3-pyqt5 
 
 # Get OpenCV
 $ sudo -s
@@ -1313,9 +1315,11 @@ Frames can be
 Global, parent, child frame <br>
 Global map frame, odom frame, base_footprint, etc.
 
-`rosrun tf tf_monitor` monitors transformations between frames
+`rosrun tf tf_monitor` displays all the transformations.
+`rosrun tf tf_monitor frame_1 frame_2` displays the transformations between the specified frames.
 
-`rosrun tf tf_echo source_frame target_frame` prints specified transform to screen
+`rosrun tf tf_echo source_frame target_frame` prints specified transform to screen. <br>
+Possible to add an integer as a flag to indicate broadcast frequency.
 
 `roswtf` helps track down problems with tf, using the tfwtf plugin
 
@@ -1354,9 +1358,68 @@ roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=/path/to/
 
 ### TF Command Line and Utilities
 
-`rosrun tf view_frames` will produce a pdf file illustrating the frames.
+This will produce a pdf file illustrating the frames in ROS Noetic.
+```
+sudo apt-get install ros-noetic-tf2-tools
+rosrun tf2_tools view_frames.py
+```
 
 `rostopic echo tf` shows the existing frames, parent/child relations & transformations.
 
 `rostopic info tf` <br>
 `rosmsg show tf2_msgs/TFMessage`
+
+### Static Transform Publisher
+`rosrun tf static_transform_publisher 1 2 3 0.1 0.2 0.3 frame_1 frame_2 10` where <br> 
+- `1 2 3` is the translation vector <br>
+- `0.1 0.2 0.3` are the rotation angles
+- `10` is the broadcast frequency
+
+OR, use a .launch file to create a transformation.
+
+## Map Navigation
+
+### Introduction
+__Map-based navigation__: loads a map, robot has knowledge of all static obstacles
+
+__Reactive navigation__: uses local information collected by sensors
+
+Localization
+
+Mapping: to recognize where it has been moving around so far
+
+Motion/Path Planning: requires well-defined target position with appropriate addressing scheme 
+
+__Simultaneous Localization and Mapping (SLAM)__ <br>
+Process of building a map using range sensors while the robot explores an unknown area. <br>
+Sensor fusion: uses filtering techniques like Kalman/particle filter.
+
+ROS Packages <br>
+__move_base__: navigation in a map and movement to a goal pose w.r.t. given reference frame.
+
+__gmapping__: creates maps using laser scan data
+
+__amcl__: localization using existing maps
+
+Tb3 SLAM Demo
+1. Start Tb3 Waffle
+    - `roslaunch turtlebot3_gazebo turtlebot3_house.launch`
+2. Open gmapping SLAM application
+    - `roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=gmapping`
+    - cartographer
+    - hector_slam
+3. Teleop the robot
+4. Save map
+    - `rosrun map_server map_saver -f ~/tb3_house_map`
+    - This generates 2 files (.pgm & .yaml)
+    - .pgm contains grayscale image of the map
+    - .yaml contains metadata about the map
+
+__Occupancy Grid Map__
+- Matrix
+- Each cell has a probability of occpancy
+- Each cell can be empty (0), occupied (1) or unknown (-1) based on occupied_threshold and free_threshold.
+- Depending on resolution, cell size can be from 5-50cm
+
+Map quality is largely dependent on scanner quality (FOV and range).
+
