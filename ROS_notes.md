@@ -63,9 +63,25 @@ ____
     8.5 [rosserial Publisher](#8.5) <br>
     8.6 [rosserial Subscriber](#8.6) <br>
 9. [ROS Navigation](#9) <br>
+    9.1 [Frame](#9.1) <br>
+    9.2 [Pose](#9.2) <br>
+    9.3 [2D Transformation](#9.3) <br>
+    9.4 [3D Frame](#9.4) <br>
+    9.5 [3D Orientation](#9.5) <br>
+    9.6 [TF Package in ROS](#9.6) <br>
+    9.7 [TF Python Implementation](#9.7) <br>
+    9.8 [TF Command Line & Utilities](#9.8) <br>
+    9.9 [Static Transform Publisher](#9.9) <br>
+10. [Map Navigation](#10) <br>
+    10.1 [Introduction](#10.1) <br>
+    10.2 [SLAM](#10.2) <br>
+    10.3 [Map-based Navigation](#10.3) <br>
+    10.4 [ROS Node for Navigation](#10.4) <br>
+    10.5 [Robot Setup](#10.5) <br>
 
 __Quick Tips for Terminal Command__<br>
 After entering a keyword, *double tab* to view all the possible commands.
+`xdg-open .` to open the file manager of the current directory in the terminal.
 
 ## Section 1: ROS Concepts <a name="1"></a>
 [Go to top](#top)
@@ -645,15 +661,17 @@ __Video/Image Input/Output__ <br>
 Read/write images and video streams.
 
 __Installation__ <br>
-I followed the instructions here to build OpenCV. Building allows you to choose the dependencies you need. <br>
-http://www.codebind.com/cpp-tutorial/install-opencv-ubuntu-cpp/
+I followed the instructions [here](http://www.codebind.com/cpp-tutorial/install-opencv-ubuntu-cpp/) to build OpenCV. Below is a summary of the instructions in the link. Building allows you to choose the dependencies you need. [Here](https://www.pyimagesearch.com/2019/09/16/install-opencv-4-on-raspberry-pi-4-and-raspbian-buster/) is a supplementary link for RPi. <br>
 
 ```
 # Update
 $ sudo apt-get update && sudo apt-get upgrade
 
 # Install dependencies
-$ sudo apt-get install build-essential cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python3.5-dev python3-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff5-dev libdc1394-22-dev libeigen3-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev sphinx-common libtbb-dev yasm libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenexr-dev libgstreamer-plugins-base1.0-dev libavutil-dev libavfilter-dev libavresample-dev libopencv-dev
+$ sudo apt-get install build-essential cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python3.5-dev python3-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff5-dev libdc1394-22-dev libeigen3-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev sphinx-common libtbb-dev yasm libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenexr-dev libgstreamer-plugins-base1.0-dev libavutil-dev libavfilter-dev libavresample-dev libopencv-dev 
+
+# Additional dependencies
+libatlas-base-dev gfortran libhdf5-dev libhdf5-serial-dev libhdf5-103 libqtgui4 libqtwebkit4 libqt4-test python3-pyqt5 
 
 # Get OpenCV
 $ sudo -s
@@ -1204,7 +1222,9 @@ __Initial Robot Location__
 - The robot does not know its initial location.
 - Use 2D Pose Estimate in RViz to select the location and set the bearing.
 
-### Frame__
+### 9.1 Frame <a name="9.1"></a>
+[Go to top](#top)
+ 
 A frame is a reference that is used to localise objects/robots. <br>
 Frame transformation is used to convert from one frame to another.
 
@@ -1221,11 +1241,15 @@ Robot coordinate frame, world coordinate frame
 
 Quaternion is used to describe orientation (x,y,z,w).
 
-### Pose
+### 9.2 Pose <a name="9.2"></a>
+[Go to top](#top)
+ 
 Pose consists of (x,y) coordinate and orientation of the robot. <br>
 The orientation is measued as the angle (theta) from the positive horizontal axis.
 
-### 2D Transformation
+### 9.3 2D Transformation <a name="9.3"></a>
+[Go to top](#top)
+ 
 Combination of translation and rotation. <br>
 Goal is to establish a relationship between a pose in one frame and a pose in another frame.
 
@@ -1252,7 +1276,9 @@ Translation + Rotation <br>
 
 <img src="./notes_images/transformation_matrix.jpg" height=200>
 
-### 3D Frame
+### 9.4 3D Frame <a name="9.4"></a>
+[Go to top](#top)
+ 
 Z-direction: right hand grip rule, swipe fingers from x to y. <br>
 
 <img src="./notes_images/3d_frame.jpg" height=200>
@@ -1269,7 +1295,9 @@ R = Rz(alpha) * Ry(beta) * Rx(gamma)
 
 <img src="./notes_images/3d_transformation_matrix.jpg" height=200>
 
-### 3D Orientation
+### 9.5 3D Orientation <a name="9.5"></a>
+[Go to top](#top)
+ 
 1. Three-angle represenation: euler rotation, cardan rotation 
 2. Rotation about arbitary vector
 3. Quaternions
@@ -1293,7 +1321,8 @@ Benefits of Quaternions
 - Compared to rotation matrices, they are more compact, more numerically stable, more efficient.
 - Applied in CV, robotics, navigation, molecular dynamics, flight dynamics, satellite orbital mechanics, crystallographic texture analysis
 
-## TF Package in ROS
+### 9.6 TF Package in ROS <a name="9.6"></a>
+[Go to top](#top)
 
 Transformation library. <br>
 A robot is a collection of frames attached to different joints.
@@ -1301,10 +1330,16 @@ A robot is a collection of frames attached to different joints.
 <img src="./notes_images/robot_frame.jpg" height=200>
 
 Robot frames are defined in an XML file in the Unified Robot Description Format (URDF).<br>
-Transformation matrices are defined in the URDF file.
+The following are defined in the URDF file
+- Joints
+    - `<joint name="base_joint" type="fixed">`
+- Parent/child relations
+    - `<parent link="base_footprint"/>`
+    - `<child link="base_link"/>`
+- Transformation matrices
+    - `<origin xyz="1.0 2.0 3.0" rpy="0.0 0.0 0.5">`
 
-### TF Package Nodes
-
+__TF Package Nodes__ <br>
 Frames can be
 - published by a broadcaster node
 - subscribed by a ROS node that listens to the frames
@@ -1313,16 +1348,19 @@ Frames can be
 Global, parent, child frame <br>
 Global map frame, odom frame, base_footprint, etc.
 
-`rosrun tf tf_monitor` monitors transformations between frames
+`rosrun tf tf_monitor` displays all the transformations.
+`rosrun tf tf_monitor frame_1 frame_2` displays the transformations between the specified frames.
 
-`rosrun tf tf_echo source_frame target_frame` prints specified transform to screen
+`rosrun tf tf_echo source_frame target_frame` prints specified transform to screen. <br>
+Possible to add an integer as a flag to indicate broadcast frequency.
 
 `roswtf` helps track down problems with tf, using the tfwtf plugin
 
 `static_transform_publisher` is a cmd line tool to send static transforms
 
 
-### TF Python Implementation
+### 9.7 TF Python Implementation <a name="9.7"></a>
+[Go to top](#top)
 
 ```python
 quaternion = tf.transformations.quaternion_from_euler(roll,pitch,yaw)
@@ -1352,11 +1390,147 @@ roslaunch turtlebot3_gazebo turtlebot3_house.launch
 roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=/path/to/map.yaml
 ```
 
-### TF Command Line and Utilities
+### 9.8 TF Command Line and Utilities <a name="9.8"></a>
+[Go to top](#top)
 
-`rosrun tf view_frames` will produce a pdf file illustrating the frames.
+This will produce a pdf file illustrating the frames in ROS Noetic.
+```
+sudo apt-get install ros-noetic-tf2-tools
+rosrun tf2_tools view_frames.py
+```
 
 `rostopic echo tf` shows the existing frames, parent/child relations & transformations.
 
 `rostopic info tf` <br>
 `rosmsg show tf2_msgs/TFMessage`
+
+### Static Transform Publisher <a name="9.9"></a>
+[Go to top](#top)
+
+To establish transformations between 2 frames.
+
+`rosrun tf static_transform_publisher 1 2 3 0.1 0.2 0.3 frame_1 frame_2 10` where <br> 
+- `1 2 3` is the translation vector <br>
+- `0.1 0.2 0.3` are the rotation angles
+- `10` is the broadcast frequency
+
+OR, use a .launch file to create a transformation.
+
+## Section 10 Map Navigation <a name="10"></a>
+[Go to top](#top)
+
+### 10.1 Introduction <a name="10.1"></a>
+[Go to top](#top)
+__Map-based navigation__: loads a map, robot has knowledge of all static obstacles
+
+__Reactive navigation__: uses local information collected by sensors
+
+Localization
+
+Mapping: to recognize where it has been moving around so far
+
+Motion/Path Planning: requires well-defined target position with appropriate addressing scheme 
+
+### 10.2 SLAM (Simultaneous Localization and Mapping) <a name="10.2"></a>
+[Go to top](#top)
+Process of building a map using range sensors while the robot explores an unknown area. <br>
+Sensor fusion: uses filtering techniques like Kalman/particle filter.
+
+ROS Packages <br>
+__move_base__: navigation in a map and movement to a goal pose w.r.t. given reference frame.
+
+__gmapping__: creates maps using laser scan data
+
+__amcl__: localization using existing maps
+
+Tb3 SLAM Demo
+1. Start Tb3 Waffle
+    - `roslaunch turtlebot3_gazebo turtlebot3_house.launch`
+2. Open gmapping SLAM application
+    - `roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=gmapping`
+    - cartographer
+    - hector_slam
+3. Teleop the robot
+4. Save map
+    - `rosrun map_server map_saver -f ~/tb3_house_map`
+    - This generates 2 files (.pgm & .yaml)
+    - .pgm contains grayscale image of the map
+    - .yaml contains metadata about the map
+
+__Occupancy Grid Map__
+- Matrix
+- Each cell has a probability of occpancy
+- Each cell can be empty (0), occupied (1) or unknown (-1) based on occupied_threshold and free_threshold.
+- Depending on resolution, cell size can be from 5-50cm
+
+Map quality is largely dependent on scanner quality (FOV and range).
+
+### 10.3 Map-based Navigation <a name="10.3"></a>
+[Go to top](#top)
+
+1. Start the turtlebot simulation in Gazebo
+    - `roslaunch turtlebot3_gazebo turtlebot3_house.launch`
+2. Start the navigation stack and provide map file as input for the robot
+    - `roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=/path/to/map.yaml`
+    - RViz will be opened, and the robot location has not been initialised correctly.
+3. In RViz, use '2D Pose Estimate' to select the location the correct initial location in RViz.
+4. Local map: denoted by small coloured square region
+    - Blue: free space
+    - Red: space to avoid, inflation is applied around obstacles as a preventive measure
+5. Global Path Planner: plans a static obstacle-free path to the goal location <br>
+    Local Path Planner: executes the planned trajectory while avoiding dynamic obstacles
+6. In RViz, used '2D Nav Goal' to select the target location and orientation. The path generated is done by the global path planner.
+
+__Recovery Behaviour__ <br>
+Initiated when the local obstacle finds obstacles while following the planned global path. <br>
+Parameters for recovery behaviour can be configurd or disable.
+
+<img src="./notes_images/recovery_behaviour.jpg" height=200>
+
+__Clearing Process__ <br>
+Wrong obstacles are cleared as the robot moves and scans again with its laser scanner.
+
+__Marking__ <br>
+Opposite of clearing, where the robot reinstates obstacles that are supposed to be there.
+
+In the `turtbot3_navigation.launch`, <br>
+- `turtlebot3_remote.launch` is launched. This includes the robot model, robot state publisher node (broadcasts frames & transformations)
+- Map server node is started. It provides the environment map as a ROS Service to be used by navigation stack.
+- `amcl.launch` to launch the Adaptive Monte Carlo Localization (uses particle filter to track robot pose). It is responsible for estimating the robot's location in the map.
+- In RViz, 'Amcl Particles' shows the distribution of guesses of where the robot is. Smaller spread -> more accurate positioning.
+- `move_base.launch` to launch the ROS node that implements global and local path planner.
+- `turtlebot3_navigation.rviz` to start the RViz application
+
+### 10.4 ROS Node for Navigation <a name="10.4"></a>
+[Go to top](#top)
+
+Define goal location in cartesian coordinates 
+- Can be done more accurately in RViz using 2D Pose Estimate
+- `rostopic echo initialpose` then click on a position in RViz, OR
+- `rostopic echo amcl_pose` to get current location of the robot
+
+ActionLib is used for navigation
+- Asynchronous, allows robot to perform other tasks while navigating
+- Able to receive feedback about robot state
+- whereas ROS Services will block the robot
+
+### 10.5 Robot Setup <a name="10.5"></a>
+[Go to top](#top)
+
+<img src="./notes_images/robot_setup.jpg" height=200>
+
+__Required Nodes__
+- Transform configuration
+    - To describe relations between the coordinate frames
+    - Done using URDF file or static transform publisher
+- Sensor information
+    - Navigation stack uses information from sensors to avoid obstacles in the world
+    - Msg types: `sensor_msgs/LaserScan`, `sensor_msgs/PointCloud`
+    - Supported sensors: URG, SICK
+- Odometry Information
+    - Needed by navigation stack
+    - Published using tf and `nav_msgs/Odometry` message
+- Base Controller
+    - Navigation stack assumes it can send `cmd_vel` using `geometry_msgs/Twist` message
+    - Twist message is assumed to be in base coordinate frame
+    - Special node receies `cmd_vel` commands and convert it to motor command

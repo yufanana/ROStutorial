@@ -22,7 +22,7 @@ if __name__ == '__main__':
         #translation vector
         translation_vector = (1.0, 2.0, 3.0)
 
-        #time
+        #time stamp needed for each publish
         current_time = rospy.Time.now()
 
         transform_broadcaster.sendTransform(
@@ -30,7 +30,7 @@ if __name__ == '__main__':
             rotation_quaternion,
             current_time, 
             "frame_b", "frame_a") #child frame, parent frame
-        time.sleep(0.5)
+        time.sleep(0.5)     # publish every 500ms
 
     rospy.spin()
 
