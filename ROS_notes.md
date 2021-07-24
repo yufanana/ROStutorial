@@ -75,6 +75,7 @@ ____
 
 __Quick Tips for Terminal Command__<br>
 After entering a keyword, *double tab* to view all the possible commands.
+`xdg-open .` to open the file manager of the current directory in the terminal.
 
 ## Section 1: ROS Concepts <a name="1"></a>
 [Go to top](#top)
@@ -1323,7 +1324,14 @@ A robot is a collection of frames attached to different joints.
 <img src="./notes_images/robot_frame.jpg" height=200>
 
 Robot frames are defined in an XML file in the Unified Robot Description Format (URDF).<br>
-Transformation matrices are defined in the URDF file.
+The following are defined in the URDF file
+- Joints
+    - `<joint name="base_joint" type="fixed">`
+- Parent/child relations
+    - `<parent link="base_footprint"/>`
+    - `<child link="base_link"/>`
+- Transformation matrices
+    - `<origin xyz="1.0 2.0 3.0" rpy="0.0 0.0 0.5">`
 
 __TF Package Nodes__ <br>
 Frames can be
@@ -1391,6 +1399,9 @@ rosrun tf2_tools view_frames.py
 `rosmsg show tf2_msgs/TFMessage`
 
 ### Static Transform Publisher
+
+To establish transformations between 2 frames.
+
 `rosrun tf static_transform_publisher 1 2 3 0.1 0.2 0.3 frame_1 frame_2 10` where <br> 
 - `1 2 3` is the translation vector <br>
 - `0.1 0.2 0.3` are the rotation angles
@@ -1398,9 +1409,9 @@ rosrun tf2_tools view_frames.py
 
 OR, use a .launch file to create a transformation.
 
-## Map Navigation
+## Section 10 Map Navigation
 
-### Introduction
+### 10.1 Introduction
 __Map-based navigation__: loads a map, robot has knowledge of all static obstacles
 
 __Reactive navigation__: uses local information collected by sensors
@@ -1411,7 +1422,7 @@ Mapping: to recognize where it has been moving around so far
 
 Motion/Path Planning: requires well-defined target position with appropriate addressing scheme 
 
-__Simultaneous Localization and Mapping (SLAM)__ <br>
+### 10.2 SLAM (Simultaneous Localization and Mapping)
 Process of building a map using range sensors while the robot explores an unknown area. <br>
 Sensor fusion: uses filtering techniques like Kalman/particle filter.
 
@@ -1444,3 +1455,69 @@ __Occupancy Grid Map__
 
 Map quality is largely dependent on scanner quality (FOV and range).
 
+### 10.3 Map-based Navigation
+
+1. Start the turtlebot simulation in Gazebo
+    - `roslaunch turtlebot3_gazebo turtlebot3_house.launch`
+2. Start the navigation stack and provide map file as input for the robot
+    - `roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=/path/to/map.yaml`
+    - RViz will be opened, and the robot location has not been initialised correctly.
+3. In RViz, use '2D Pose Estimate' to select the location the correct initial location in RViz.
+4. Local map: denoted by small coloured square region
+    - Blue: free space
+    - Red: space to avoid, inflation is applied around obstacles as a preventive measure
+5. Global Path Planner: plans a static obstacle-free path to the goal location <br>
+    Local Path Planner: executes the planned trajectory while avoiding dynamic obstacles
+6. In RViz, used '2D Nav Goal' to select the target location and orientation. The path generated is done by the global path planner.
+
+__Recovery Behaviour__ <br>
+Initiated when the local obstacle finds obstacles while following the planned global path. <br>
+Parameters for recovery behaviour can be configurd or disable.
+
+<img src="./notes_images/recovery_behaviour.jpg" height=200>
+
+__Clearing Process__ <br>
+Wrong obstacles are cleared as the robot moves and scans again with its laser scanner.
+
+__Marking__ <br>
+Opposite of clearing, where the robot reinstates obstacles that are supposed to be there.
+
+In the `turtbot3_navigation.launch`, <br>
+- `turtlebot3_remote.launch` is launched. This includes the robot model, robot state publisher node (broadcasts frames & transformations)
+- Map server node is started. It provides the environment map as a ROS Service to be used by navigation stack.
+- `amcl.launch` to launch the Adaptive Monte Carlo Localization (uses particle filter to track robot pose). It is responsible for estimating the robot's location in the map.
+- In RViz, 'Amcl Particles' shows the distribution of guesses of where the robot is. Smaller spread -> more accurate positioning.
+- `move_base.launch` to launch the ROS node that implements global and local path planner.
+- `turtlebot3_navigation.rviz` to start the RViz application
+
+### 10.4 ROS Node for Navigation
+
+Define goal location in cartesian coordinates 
+- Can be done more accurately in RViz using 2D Pose Estimate
+- `rostopic echo initialpose` then click on a position in RViz, OR
+- `rostopic echo amcl_pose` to get current location of the robot
+
+ActionLib is used for navigation
+- Asynchronous, allows robot to perform other tasks while navigating
+- Able to receive feedback about robot state
+- whereas ROS Services will block the robot
+
+### 10.5 Robot Setup
+
+<img src="./notes_images/robot_setup.jpg" height=200>
+
+__Required Nodes__
+- Transform configuration
+    - To describe relations between the coordinate frames
+    - Done using URDF file or static transform publisher
+- Sensor information
+    - Navigation stack uses information from sensors to avoid obstacles in the world
+    - Msg types: `sensor_msgs/LaserScan`, `sensor_msgs/PointCloud`
+    - Supported sensors: URG, SICK
+- Odometry Information
+    - Needed by navigation stack
+    - Published using tf and `nav_msgs/Odometry` message
+- Base Controller
+    - Navigation stack assumes it can send `cmd_vel` using `geometry_msgs/Twist` message
+    - Twist message is assumed to be in base coordinate frame
+    - Special node receies `cmd_vel` commands and convert it to motor command
