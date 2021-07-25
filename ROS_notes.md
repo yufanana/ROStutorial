@@ -78,6 +78,16 @@ ____
     10.3 [Map-based Navigation](#10.3) <br>
     10.4 [ROS Node for Navigation](#10.4) <br>
     10.5 [Robot Setup](#10.5) <br>
+11. [Nav Stack Config & Tuning](#11) <br>
+    11.1 [Max/Min Velocities & Accelerations](#11.1) <br>
+    11.2 [Global Planner Parameters](#11.2) <br>
+    11.3[Local Planner Parameters](#11.3) <br>
+    > 11.3.1 [Dynamic Window Approach (DWA)](#11.3.1) <br>
+
+    11.4 [Tuning Scoring Parameters](#11.4) <br>
+12. [Reactive Navigation](#12) <br>
+    12.1 [Follower Application](#12.1) <br>
+    
 
 __Quick Tips for Terminal Command__<br>
 After entering a keyword, *double tab* to view all the possible commands.
@@ -742,7 +752,14 @@ __Others__ <br>
   - Saturation: 0-100%, amount of gray in colour
   - Value: 0-100%, brightness level, with 0 as black and 100 as most colour
 
-<img src="./notes_images/HSV_cylinder.png" height=200>
+|Color|Angle|OpenCV Angle|
+|-----|-----|------------|
+|Red | 0-60 | 0-30 |
+|Yellow | 60-120 | 30-60 |
+|Green | 120-180 | 60-90 |
+|Cyan | 180-240 | 90-120 |
+|Blue | 240-300 | 120-150 |
+|Magenta | 300-360 | 150-180 |
 
 OpenCV uses different ranges for HSV. <br>
 - Hue: 0-180
@@ -1534,3 +1551,126 @@ __Required Nodes__
     - Navigation stack assumes it can send `cmd_vel` using `geometry_msgs/Twist` message
     - Twist message is assumed to be in base coordinate frame
     - Special node receies `cmd_vel` commands and convert it to motor command
+
+## Section 11: Nav Stack Config & Tuning <a name="11"></a>
+[Go to top](#top)
+
+### 11.1 Max/Min Velocities & Accelerations <a name="11.1"></a>
+[Go to top](#top)
+
+Largely dependent on the type of motors used on the robot. <br>
+Located inside `.yaml` files.
+
+For translation velocity, use a joystick to move the robot in a straight line until it reaches a constant speed. Record the max speed value by echoing the odom topic.
+
+For rotational velocity, use a joystick to rotate the robot until it reaches a constant speed. Record the max speed value by echoing the odom topic.
+
+For maximum acceleration, refer to motors manual if available. Else, estimate using the time stamp in the odom message to estimate the velocity.
+- `accel_translation = vmax / t_vmax`
+- `accel_rotational = wmax / t_wmax`
+
+For minimum values, they are used by the local planner when the robot is stuck. <br>
+It can be set to a negative value for this recovery purpose.
+
+Velocity in x-direction should be the same as translational velocity. <br>
+Velocity in y-direction should be zero for non-holonomic robots.
+
+### 11.2 Global Planner Parameters <a name="11.2"></a>
+[Go to top](#top)
+
+Global path planners must adhere to `nav core::BaseGlobalPlanner` interface. <br>
+It is possible to write your own global path planner class.
+
+- `initialize()`
+- `makePlan()`
+
+__Built-in Global Planners__ <br>
+1. `carrot_planner`
+    - takes user-specified goal point
+    - attempts to move robot as close to goal as possible
+    - even when the goal is an obstacle
+2. `navfn` (nav function)
+    - uses Dijkstra's algorithm to find the global path
+3. `global_planner`
+    - replacement of navfn
+    - more flexible, has more options
+    - support of A*
+    - can use grid path
+
+For `global_planner`, <br>
+
+### 11.3 Local Planner Parameters <a name="11.3"></a>
+[Go to top](#top)
+
+Local path planners must adhere to `nav core::BaseLocalPlanner` interface. <br>
+It is possible to write your own local path planner class.
+
+- `initialize()`
+- `isGoalReached()`
+- `computeVelocityCommands()`
+- `setPlan()`
+
+#### 11.3.1 Dynamic Window Approach (DWA) <a name="11.3.1"></a>
+[Go to top](#top)
+1. It will discretely sample dx,dy,dtheta from the robot's control space
+2. Then, forward simulation is performed for each sampled velocity to predict the outcome
+3. Each trajectory is evaluated using a metric:
+    - proximity to goal
+    - proximity to obstacles
+    - proximity to global path
+    - speed
+4. Collision trajectories are discarded
+5. Highest-scoring trajectory is picked and sent to the mobile base
+
+DWA depends on the local costmap which provides obstacle (static & dynamic) information.
+
+__DWA Parameters__ <br>
+
+Simulation Time
+|Value|Pros|Cons|
+|-------|-----------------|------------------|
+|High (>=5)| Longer paths, can get past narrow spaces | Heavier computation, higher energy consumption |
+|Low (<=2)| Lighter computation | Shorter paths, limited performance in narrow spaces/gaps/doorways, insufficient path to go through passageway|
+
+Trajectory Scoring Time
+```
+cost = path_distance_bias * (distance to global path from trajectory endpoint)
+     + goal_distance_bias * (distance to local goal from trajectory endpoint)
+     + occdist_scale * (max obstacle cost along trajectory, 0-254)
+```
+If the change in bias/scale increases the cost, that behaviour will be discouraged. <br>
+e.g. Increase path_distance_bias, robot will select trajectories closer to global path.
+
+
+- `p_dist`: path_distance_bias (e.g. 32.0)
+- `g_dist`: goal_distance_bias (e.g. 20.0)
+- `occdist`: occdist_scale (e.g. 0.02)
+
+### 11.4 Tuning Scoring Parameters <a name="11.4"></a>
+
+[Go to top](#top)
+
+`rosrun rqt_reconfigure rqt_reconfigure` gives access to all parameters in ROS from the parameter server. <br>
+Changes can be made dynamically without accessing the files.
+
+Change the values iteratively until a good balance/trade-off is found for that robot/mission.
+
+## Section 12: Reactive Navigation  <a name="12"></a>
+[Go to top](#top)
+
+Navigation without a map.
+
+Follower Application 
+### 12.1 Follower Application <a name="12.1"></a>
+[Go to top](#top)
+
+Code Structure
+1. Create a TF Broadcaster
+2. Assigned a TF Broadcaster to each turtlesim
+3. Create a TF Listener
+    - Get transformation between the 2 frames
+    - Extract distance and orientation
+    - Make the following turtle move towards the master turtle using goal-to-goal behaviour.
+
+
+
