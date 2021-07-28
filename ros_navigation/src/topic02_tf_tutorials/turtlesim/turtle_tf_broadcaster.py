@@ -8,7 +8,7 @@ from turtlesim.msg import Pose
 def pose_callback(msg, turtlename):
 	#create a transform broadcaster
     transform_broadcaster = tf.TransformBroadcaster()
-    #convert 90 degrees to quaternion
+    #convert degrees to quaternion
     rotation_quaternion = tf.transformations.quaternion_from_euler(0, 0, msg.theta)
     #translation vector
     translation_vector = (msg.x, msg.y, 0)
@@ -17,7 +17,7 @@ def pose_callback(msg, turtlename):
 
     transform_broadcaster.sendTransform(translation_vector, rotation_quaternion,
         current_time, turtlename+"_frame", "world")
-
+    # "world" is the parent frame, turtle_frame is the child
 
 
 

@@ -10,6 +10,6 @@
       <param name="turtle" type="string" value="turtle2" /> 
     </node>
 
-     <node pkg="ros_course_part2" type="turtle_tf_listener.py" name="listener" />
+     <node pkg="ros_navigation" type="turtle_tf_listener.py" name="listener" />
 
   </launch>

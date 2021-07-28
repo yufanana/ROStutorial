@@ -1690,5 +1690,67 @@ Code Structure
     - Extract distance and orientation
     - Make the following turtle move towards the master turtle using goal-to-goal behaviour.
 
+Find code under topic02_tf_tutorials > turtlesim > turtle_tf_broadcaster.py
 
+Key commands
+`transform_broadcaster.sendTransform(translation_vector, rotation_quaternion, current_time, turtlename+"_frame", "world")`
 
+Spawn turtle2
+```python
+rospy.wait_for_service('spawn')
+spawner = rospy.ServiceProxy('spawn', turtlesim.srv.Spawn)
+spawner(4, 2, 0, 'turtle2')
+```
+
+`(translation,rotation) = transform_listener.lookupTransform('/turtle2_frame', '/turtle1_frame', rospy.Time(0))`
+
+In the demo launch file,
+- turtlesim_node is created with turtle1 inside
+- turtle_teleop_key node is created to control turtle1
+- turtle_tf_listener is created to move turtle2 to turtle1
+- tf_broadcaster is created for each turtle
+
+### 12.2 Bug Algorithms <a name="12.2"></a>
+[Go to top](#top)
+
+- Reactive Paradigm (sense + act)
+- No global map, unknown obstacles
+- Information are only coming from the sensors
+
+#### 12.2.1 Bug 0 <a name="12.2.1"></a>
+[Go to top](#top)
+
+__Behaviour 1__: Head to goal straight <br>
+__Behaviour 2__: Follow obstacle boundary
+
+__Algorithm__
+- Behaviour 1 until obstacle detected
+- Behaviour 2 until no obstacle detected
+
+Note: Reaching goal is not guaranteed
+
+#### 12.2.2 Bug 1 <a name="12.2.2"></a>
+[Go to top](#top)
+
+__Behaviour 1__: Head to goal straight <br>
+__Behaviour 2__: Follow obstacle, make a complete tour around it, note closest location to goal <br>
+__Behaviour 3__: Return to closest point using wall
+
+__Algorithm__
+- Behaviour 1 until obstacle detected
+- Behaviour 2 until tour completed
+- Behaviour 3 after completing tour, until reaching closest point
+
+Note: Better convergence to goal, more time-consuming
+
+#### 12.2.3 Bug 2 <a name="12.2.3"></a>
+[Go to top](#top)
+
+__Behaviour 1__: Head to goal straight <br>
+__Behaviour 2__: Follow obstacle boundary
+
+__Algorithm__
+- Behaviour 1 until obstacle detected
+- Behaviour 2 until m-line encountered again
+
+m-line: straight line from initial location to the goal

@@ -1,11 +1,19 @@
-#!/usr/bin/env python  
-import roslib
-#roslib.load_manifest('learning_tf')
+#!/usr/bin/env python
+
 import rospy
-import math
 import tf
+import math
 import geometry_msgs.msg
-import turtlesim.srv
+
+goal_location = (0,2)
+
+def go_straight():
+
+    return
+
+def follow_wall():
+
+    return
 
 if __name__ == '__main__':
     #init node
@@ -42,3 +50,4 @@ if __name__ == '__main__':
         turtle_follower_velocity.publish(cmd)
 
         rate.sleep()
+
