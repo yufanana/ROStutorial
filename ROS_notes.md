@@ -678,10 +678,28 @@ I followed the instructions [here](http://www.codebind.com/cpp-tutorial/install-
 $ sudo apt-get update && sudo apt-get upgrade
 
 # Install dependencies
-$ sudo apt-get install build-essential cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python3.5-dev python3-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff5-dev libdc1394-22-dev libeigen3-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev sphinx-common libtbb-dev yasm libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenexr-dev libgstreamer-plugins-base1.0-dev libavutil-dev libavfilter-dev libavresample-dev libopencv-dev 
+$ sudo apt-get install <dependency>
+
+# Developer tools to configure OpenCV build process
+build-essential cmake git pkg-config libopencv-dev 
+ 
+# Python & numpy
+python3.7-dev python3-numpy 
+ 
+# Image I/O Packages
+ libjpeg-dev libpng-dev
+ 
+# Video I/O Packages, Video Streams
+libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavresample-dev libswscale-dev libxvidcore-dev libv4l-dev libx264-dev
+ 
+# highgui to display images
+libgtk2.0-dev libgtk-3-dev   libfontconfig1-dev libcairo2-devlibgdk-pixbuf2.0-dev libpango1.0-dev
+
+# Optimise OpenCV operations
+libatlas-base-dev gfortran
 
 # Additional dependencies
-libatlas-base-dev gfortran libhdf5-dev libhdf5-serial-dev libhdf5-103 libqtgui4 libqtwebkit4 libqt4-test python3-pyqt5 
+libtbb2 libtbb-dev libdc1394-22-dev libeigen3-dev libtheora-dev libvorbis-dev sphinx-common libtbb-dev yasm libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenexr-dev libgstreamer-plugins-base1.0-dev libhdf5-dev libhdf5-serial-dev libhdf5-103 libqtgui4 libqtwebkit4 libqt4-test python3-pyqt5 
 
 # Get OpenCV
 $ sudo -s
@@ -705,7 +723,7 @@ $ pkg-config --modversion opencv
 
 numpy is multidimensional array data structure is used to store pixel values of images.
 
-#### 6.2.1 Executing Python Files <br> <a name="6.2."></a>
+#### 6.2.1 Executing Python Files <br> <a name="6.2.1"></a>
 [Go to top](#top)
 
 Include `#!/usr/bin/env python` at the top of the file. Then, enter `./file_name.py` in the terminal to run the specified file in the current directory.
