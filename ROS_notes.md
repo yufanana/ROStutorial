@@ -81,7 +81,7 @@ ____
 11. [Nav Stack Config & Tuning](#11) <br>
     11.1 [Max/Min Velocities & Accelerations](#11.1) <br>
     11.2 [Global Planner Parameters](#11.2) <br>
-    11.3[Local Planner Parameters](#11.3) <br>
+    11.3 [Local Planner Parameters](#11.3) <br>
     > 11.3.1 [Dynamic Window Approach (DWA)](#11.3.1) <br>
 
     11.4 [Tuning Scoring Parameters](#11.4) <br>
@@ -347,7 +347,10 @@ e.g.
 - /turtle1/color_sensor
 - /turtle1/pose
 
-`rostopic echo /turtle1/cmd_vel` outputs the content of the messages in `cmd_vel` topic when the message is published.
+`rostopic echo /turtle1/cmd_vel` outputs the content of the messages in `cmd_vel` topic when the message is published. <br>
+Add `-n1` flag to print topic exactly once.
+
+`rostopic info cmd_vel` shows the message type, publishers and subscribers for that topic.
 
 __Type__ <br>
 e.g. *(package_name/message_type)*
@@ -1456,6 +1459,7 @@ OR, use a .launch file to create a transformation.
 
 ### 10.1 Introduction <a name="10.1"></a>
 [Go to top](#top)
+
 __Map-based navigation__: loads a map, robot has knowledge of all static obstacles
 
 __Reactive navigation__: uses local information collected by sensors
@@ -1468,6 +1472,7 @@ Motion/Path Planning: requires well-defined target position with appropriate add
 
 ### 10.2 SLAM (Simultaneous Localization and Mapping) <a name="10.2"></a>
 [Go to top](#top)
+
 Process of building a map using range sensors while the robot explores an unknown area. <br>
 Sensor fusion: uses filtering techniques like Kalman/particle filter.
 
@@ -1503,6 +1508,7 @@ Map quality is largely dependent on scanner quality (FOV and range).
 ### 10.3 Map-based Navigation <a name="10.3"></a>
 [Go to top](#top)
 
+Navigation Stack
 1. Start the turtlebot simulation in Gazebo
     - `roslaunch turtlebot3_gazebo turtlebot3_house.launch`
 2. Start the navigation stack and provide map file as input for the robot
@@ -1528,7 +1534,7 @@ Wrong obstacles are cleared as the robot moves and scans again with its laser sc
 __Marking__ <br>
 Opposite of clearing, where the robot reinstates obstacles that are supposed to be there.
 
-In the `turtbot3_navigation.launch`, <br>
+In the `turtlebot3_navigation.launch`, <br>
 - `turtlebot3_remote.launch` is launched. This includes the robot model, robot state publisher node (broadcasts frames & transformations)
 - Map server node is started. It provides the environment map as a ROS Service to be used by navigation stack.
 - `amcl.launch` to launch the Adaptive Monte Carlo Localization (uses particle filter to track robot pose). It is responsible for estimating the robot's location in the map.
@@ -1539,6 +1545,12 @@ In the `turtbot3_navigation.launch`, <br>
 ### 10.4 ROS Node for Navigation <a name="10.4"></a>
 [Go to top](#top)
 
+First, start the navigation stack by running the commands below
+```
+roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=/path/to/map.yaml
+roslaunch turtlebot3_gazebo turtlebot3_house.launch
+```
+
 Define goal location in cartesian coordinates 
 - Can be done more accurately in RViz using 2D Pose Estimate
 - `rostopic echo initialpose` then click on a position in RViz, OR
@@ -1548,6 +1560,8 @@ ActionLib is used for navigation
 - Asynchronous, allows robot to perform other tasks while navigating
 - Able to receive feedback about robot state
 - whereas ROS Services will block the robot
+
+Check `navigate_goal.py` and `navigate_goal.cpp`
 
 ### 10.5 Robot Setup <a name="10.5"></a>
 [Go to top](#top)
