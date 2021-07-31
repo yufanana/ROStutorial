@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # roslaunch turtlebot3_gazebo turtlebot3_stage_4.launch
+# rosservice call /gazebo/reset_world
 
 '''
 This Bug0 alrogithm turns left upon encountering an obstacle.
@@ -8,29 +9,23 @@ This Bug0 alrogithm turns left upon encountering an obstacle.
 
 import rospy
 import math
+import sys
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point
 from geometry_msgs.msg import Twist
 from tf import transformations
 
-srv_client_go_to_point_ = None
-srv_client_wall_follower_ = None
 yaw_ = 0
 yaw_error_allowed_ = 5 * (math.pi / 180) # 5 degrees
 
 # Precision of facing/reaching goal
 yaw_precision_ = math.pi / 90 # +/- 2 degree allowed
-dist_precision_ = 0.3
+dist_precision_ = 0.1
 
 position_ = Point()
-#initial_position_ = Point()
-#initial_position_.x = rospy.get_param('initial_x')
-#initial_position_.y = rospy.get_param('initial_y')
-#initial_position_.z = 0
-
-#regions_ = None
-state_desc_ = ['Go to point', 'wall following']
+regions_ = None
+bug_state_ = 0  # 0 as go to goal, 1 as wall following
 state_ = 4  # initialise state as go to goal
 state_dict_ = {
     0: 'find the wall',
@@ -64,7 +59,7 @@ def laser_callback(msg):
     '''
     Reads the scan, determines where are the obstacles
     '''
-    #global regions_
+    global regions_
     
     # define directions
     regions_ = {
@@ -84,44 +79,45 @@ def laser_callback(msg):
     d = 0.5  # threshold to consider obstacle as far
     
     # determine direction of obstacle(s)
-    if regions_['front'] > d and regions_['fleft'] > d and regions_['fright'] > d:
-        state_description = 'case 1 - nowhere'
-        change_state(0)     # find wall
-    elif regions_['front'] < d and regions_['fleft'] > d and regions_['fright'] > d:
-        state_description = 'case 2 - front only'
-        change_state(1)     # turn left
-    elif regions_['front'] > d and regions_['fleft'] > d and regions_['fright'] < d:
-        state_description = 'case 3 - fright only'
-        change_state(2)     # follow wall
-    elif regions_['front'] > d and regions_['fleft'] < d and regions_['fright'] > d:
-        state_description = 'case 4 - fleft only'
-        change_state(0)     # find wall
-    elif regions_['front'] < d and regions_['fleft'] > d and regions_['fright'] < d:
-        state_description = 'case 5 - front and fright'
-        change_state(1)     # turn left
-    elif regions_['front'] < d and regions_['fleft'] < d and regions_['fright'] > d:
-        state_description = 'case 6 - front and fleft'
-        change_state(1)     # turn left
-    elif regions_['front'] < d and regions_['fleft'] < d and regions_['fright'] < d:
-        state_description = 'case 7 - front and fleft and fright'
-        change_state(1)     # turn left
-    elif regions_['front'] > d and regions_['fleft'] < d and regions_['fright'] < d:
-        state_description = 'case 8 - fleft and fright'
-        change_state(0)     # find wall
-    else:
-        state_description = 'unknown case'
-        rospy.loginfo(regions_)
+    if bug_state_ == 1:     # wall following
+        if regions_['front'] > d and regions_['fleft'] > d and regions_['fright'] > d:
+            state_description = 'case 1 - nowhere'
+            change_state(0)     # find wall
+        elif regions_['front'] < d and regions_['fleft'] > d and regions_['fright'] > d:
+            state_description = 'case 2 - front only'
+            change_state(1)     # turn left
+        elif regions_['front'] > d and regions_['fleft'] > d and regions_['fright'] < d:
+            state_description = 'case 3 - fright only'
+            change_state(2)     # follow wall
+        elif regions_['front'] > d and regions_['fleft'] < d and regions_['fright'] > d:
+            state_description = 'case 4 - fleft only'
+            change_state(0)     # find wall
+        elif regions_['front'] < d and regions_['fleft'] > d and regions_['fright'] < d:
+            state_description = 'case 5 - front and fright'
+            change_state(1)     # turn left
+        elif regions_['front'] < d and regions_['fleft'] < d and regions_['fright'] > d:
+            state_description = 'case 6 - front and fleft'
+            change_state(1)     # turn left
+        elif regions_['front'] < d and regions_['fleft'] < d and regions_['fright'] < d:
+            state_description = 'case 7 - front and fleft and fright'
+            change_state(1)     # turn left
+        elif regions_['front'] > d and regions_['fleft'] < d and regions_['fright'] < d:
+            state_description = 'case 8 - fleft and fright'
+            change_state(0)     # find wall
+        else:
+            state_description = 'unknown case'
+            rospy.loginfo(regions_)
 
 def change_state(state):
     global state_, state_dict_
     if state is not state_:
-        print('Bug Zero - [%s] - %s' % (state, state_dict_[state]))
+        print('Bug Zero: [%s] - %s' % (state, state_dict_[state]))
         state_ = state  # change global state to current state
 
 def find_wall():
     msg = Twist()
-    msg.linear.x = 0.1
-    msg.angular.z = -0.1
+    msg.linear.x = 0.05
+    msg.angular.z = -0.3
     return msg
 
 def turn_left():
@@ -155,24 +151,24 @@ def fix_yaw(goal):
     desired_yaw = math.atan2(goal.y - position_.y, goal.x - position_.x)
     err_yaw = normalize_angle(desired_yaw - yaw_)
     
-    rospy.loginfo(err_yaw)
+    # rospy.loginfo(err_yaw)
     
     cmd = Twist()
     if math.fabs(err_yaw) > yaw_precision_:
-        cmd.angular.z = 0.1 if err_yaw > 0 else -0.1
+        cmd.angular.z = 0.3 if err_yaw > 0 else -0.1
     
     # state change conditions
     if math.fabs(err_yaw) <= yaw_precision_:
         print('Yaw error: [%s]' % err_yaw)
         cmd.angular.z = 0
         cmd.linear.x = 0
-        change_state(4)
+        change_state(4)     # go to goal
 
     return cmd
 
 def go_to_goal(goal):
     '''
-    
+    Go towards the goal location
     '''
     global yaw_, yaw_precision_, state_
     desired_yaw = math.atan2(goal.y - position_.y, goal.x - position_.x)
@@ -185,23 +181,37 @@ def go_to_goal(goal):
         cmd.angular.z = 0.1 if err_yaw > 0 else -0.1
     else:
         print('Position error: [%s]' % err_pos)
-        change_state(5)
+        cmd = Twist()
+        cmd.linear.x = 0
+        cmd.angular.z = 0
+        change_state(5)     # done
     
     # state change conditions
     if math.fabs(err_yaw) > yaw_precision_:
         print('Yaw error: [%s]' % err_yaw)
-        change_state(0)
+        change_state(3)     # fix yaw
+    return cmd
+
+def done():
+    cmd = Twist()
+    cmd.linear.x = 0
+    cmd.angular.z = 0
     return cmd
 
 def main():
-    global bug_velocity, position_
-    goal = Point()
-    goal.x = 0
-    goal.y = 2
+    global position_, regions_, bug_state_
+
+    if len(sys.argv) < 3:
+        print ("Usage: bug_zero.py x_goal y_goal")
+    else:
+        goal = Point()
+        goal.x = float(sys.argv[1])
+        goal.y = float(sys.argv[2])
+    # goal.x = 2
+    # goal.y = -2
     desired_yaw = math.atan2(goal.y - position_.y, goal.x - position_.x)
 
-    #init node
-    rospy.init_node('bug0')
+    rospy.init_node('bug0')     #init node
     
     sub_odom = rospy.Subscriber('/odom', Odometry, odom_callback)
     sub_laser = rospy.Subscriber('/scan', LaserScan, laser_callback)
@@ -209,8 +219,53 @@ def main():
     rate = rospy.Rate(10.0)
 
     while not rospy.is_shutdown():
+        if regions_ == None:
+            continue
+
+        if bug_state_ == 0: # go to goal
+            if regions_['front'] < 0.4:
+                print("Front: ", regions_['front'])
+                change_state(1)     # turn left
+                bug_state_ = 1
+
+        elif bug_state_ == 1: # wall following
+            desired_yaw = math.atan2(goal.y - position_.y, goal.x - position_.x)
+            err_yaw = normalize_angle(desired_yaw - yaw_)
+            
+            d = 0.5
+
+            # if goal is in front, check if there obstacles in front
+            if math.fabs(err_yaw) < (math.pi / 8) and \
+                regions_['front'] > d and regions_['fright'] > d and regions_['fleft'] > d:
+                print("Cleared case 1")
+                # less than 30
+                # no more obstacles in front
+                change_state(4)     # go to goal
+                bug_state_ = 0
+            
+            # if goal is fleft, check if there are obstacles in fleft
+            if err_yaw > 0 and \
+                math.fabs(err_yaw) > (math.pi / 8) and \
+                math.fabs(err_yaw) < (math.pi / 2 + math.pi / 8) and \
+                regions_['left'] > d and regions_['fleft'] > d:
+                print("Cleared case 2")
+                # between 30 and 90 - to the left
+                # cleared the obstacle that was on the left
+                change_state(4)     # go to goal
+                bug_state_ = 0
+            
+            # if goal is fright, check if there are obstacles in fright
+            if err_yaw < 0 and \
+                math.fabs(err_yaw) > (math.pi / 8) and \
+                math.fabs(err_yaw) < (math.pi / 2 + math.pi / 8) and \
+                regions_['right'] > d and regions_['fright'] > d:
+                print("Cleared case 3")
+                # between 247 & 337 to the right
+                # cleared the obstacle that was on the right
+                change_state(4)     # go to goal
+                bug_state_ = 0
         
-        # publish cmd messages according to the current state
+        # publish cmd messages based on the current state
         if state_ == 0:
             cmd = find_wall()
         elif state_ == 1:
@@ -222,10 +277,9 @@ def main():
         elif state_ == 4:
             cmd = go_to_goal(goal)
         elif state_ == 5:
-            pass
+            cmd = done()
         else:
             rospy.logerr('Unknown state!')
-
         pub_velocity.publish(cmd)
         rate.sleep()
 
