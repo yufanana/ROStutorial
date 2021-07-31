@@ -203,17 +203,28 @@ Generate a list of Noetic dependencies
 rosinstall_generator ros_comm --rosdistro noetic --deps --wet-only --tar > noetic-ros_comm-wet.rosinstall
 ```
 
-Fetch remote repos specified in the .rosinstall file
+Fetch remote repos specified in the .rosinstall file (a few minutes)
 ```
 wstool init src noetic-ros_comm-wet.rosinstall
 ```
 
-Instal system dependencies
+Install system dependencies (>5 few minutes)
 ```
 rosdep install -y --from-paths src --ignore-src --rosdistro noetic -r --os=debian:buster
 ```
 
-Compile Noetic Packages
+Turn off swap and edit swap space
+```
+sudo dphys-swapfile swapoff && sudoedit /etc/dphys-swapfile
+```
+Change `CONF_SWAPSIZE=100` to `CONF_SWAPSIZE=1024`
+
+Setup swap and turn on swap
+```
+sudo dphys-swapfile setup && sudo dphys-swapfile swapon
+```
+
+Compile Noetic Packages (longest)
 ```
 sudo src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/noetic -j1 -DPYTHON_EXECUTABLE=/usr/bin/python3
 ```
