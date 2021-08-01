@@ -881,9 +881,6 @@ OpenCV uses different ranges for HSV. <br>
 - Saturation: 0-255
 - Value: 0-255
 
-<img src="./notes_images/HSV_color_space.jpg" height=150>
-
-
 `blue,green,red = cv2.split(color_image)` to split image into the 3 channels. <br>
 Then, you can go on to show each channel image.
 
